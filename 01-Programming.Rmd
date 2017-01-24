@@ -1,9 +1,59 @@
 # In-Class Programming Activity, Day 1
 
-Your work goes here ...
+## Mira Ensley-Field
+
+##Task 1 
+```{r}
+library(mosaicData)
+```
+
+##Task 2
+
+```{r}
+task2<-"Today is "
+day<-date()
+paste(task2,day)
+```
+
+##Task 3
+
+```{r}
+#View(Galton)
+task3a<-names(Galton)
+task3b<-nrow(Galton)
+task3c<-mean(Galton$height)
+print(task3a)
+print(task3b)
+print(task3c)
+
+```
+
+##Task 4
+
+```{r}
+task4 = matrix( 
+  c(1, 4, 2, 5, 3, 6), 
+  nrow=2, 
+  ncol=3) 
+
+print(task4)
+```
 
 
 
+##Task 5
+
+```{r}
+task5x<-runif(1000,0,1)
+task5y<-runif(1000,0,1)
+
+task5z<-sqrt(task5x*task5x + task5y*task5y)
+
+task5pi<-mean(task5z<=1)
+
+print(task5pi)
+
+```
 ## Test statements
 
 ```{r}
