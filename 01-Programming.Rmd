@@ -5,14 +5,14 @@
 ##Task 1 
 ```{r}
 library(mosaicData)
+library(mosaic)
 ```
 
 ##Task 2
 
 ```{r}
-task2<-"Today is "
-day<-date()
-paste(task2,day)
+task2<-paste("Today is ",date())
+print(task2)
 ```
 
 ##Task 3
@@ -36,6 +36,7 @@ task4 = matrix(
   nrow=2, 
   ncol=3) 
 
+
 print(task4)
 ```
 
@@ -49,7 +50,7 @@ task5y<-runif(1000,0,1)
 
 task5z<-sqrt(task5x*task5x + task5y*task5y)
 
-task5pi<-mean(task5z<=1)
+task5pi<-mean(task5z<=1)*4
 
 print(task5pi)
 
