@@ -119,81 +119,65 @@ $(document).ready(function () {
 </div>
 
 
-<div id="in-class-programming-activity-day-2" class="section level1">
-<h1>In-Class Programming Activity, Day 2</h1>
+<div id="topic-1-exercises" class="section level1">
+<h1>Topic 1 Exercises</h1>
+<div id="mira-ensley-field" class="section level2">
+<h2>Mira Ensley-Field</h2>
 </div>
-<div id="mira" class="section level1">
-<h1>Mira</h1>
-<div id="task1" class="section level2">
-<h2>Task1</h2>
-<pre class="r"><code>#download.file(&quot;http://www-bcf.usc.edu/~gareth/ISL/Auto.csv&quot;, destfile=&quot;Auto.csv&quot;)
-
-auto_file_name&lt;-&quot;/home/local/MAC/mensleyf/R/Math-253-Assignments2/Auto.csv&quot;</code></pre>
 </div>
-<div id="task2" class="section level2">
-<h2>Task2</h2>
-<pre class="r"><code>Auto=read.csv(auto_file_name,header=T,na.strings=&quot;?&quot;)
-#Auto=read.table(auto_file_name,header=T,na.strings=&quot;?&quot;)</code></pre>
+<div id="discussion-questions-isl-2.4.1-2.4.3-2.4.6" class="section level1">
+<h1>Discussion questions: ISL 2.4.1, 2.4.3, 2.4.6</h1>
+<div id="section" class="section level2">
+<h2>2.4.1</h2>
+<p><em>(a) The sample size n is extremely large, and the number of predictors p is small.</em> - I would expect a more flexible approach to be better than an inflexible approach. As we increase flexibility, the variance of our model will be increasing and we run the risk of overfitting our model, and our bias will decrease as an underlying assumption about the structure of our data becomes less fixed. The question is, which one of these two will be increasing and decreasing faster. In this case, with few predictors but lots of data, variance will increasing slower than bias is increasing.</p>
+<p><em>(b) The number of predictors p is extremely large, and the number of observations n is small.</em></p>
+<ul>
+<li>I would expect an inflexible approach to work better in this case, for the opposite reasons. If we have lots of predictors, but little data, it would be easy to overfit the data, but we have many predictors we can use to</li>
+</ul>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>The relationship between the predictors and response is highly non-linear.</li>
+</ol>
+<ul>
+<li></li>
+</ul>
+<ol start="4" style="list-style-type: lower-alpha">
+<li>The variance of the error terms, i.e. σ2 = Var(), is extremely high.</li>
+</ol>
 </div>
-<div id="task3" class="section level2">
-<h2>Task3</h2>
-<pre class="r"><code>task3&lt;-with(Auto,summary(horsepower))
-
-#or
-
-task3&lt;-summary(Auto$horsepower)</code></pre>
+<div id="section-1" class="section level2">
+<h2>2.4.3</h2>
+<p>*We now revisit the bias-variance decomposition. (a) Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the method, and the y-axis should represent the values for each curve. There should be five curves. Make sure to label each one.</p>
+<p>(b)Explain why each of the five curves has the shape displayed in part (a).*</p>
 </div>
-<div id="task4" class="section level2">
-<h2>Task4</h2>
-<pre class="r"><code>library(ISLR)</code></pre>
-<pre><code>## 
-## Attaching package: 'ISLR'</code></pre>
-<pre><code>## The following object is masked _by_ '.GlobalEnv':
-## 
-##     Auto</code></pre>
+<div id="section-2" class="section level2">
+<h2>2.4.6</h2>
+<p><em>Describe the differences between a parametric and a non-parametric statistical learning approach. What are the advantages of a parametric approach to regression or classification (as opposed to a nonparametric approach)? What are its disadvantages?</em></p>
+<ul>
+<li><p>Parametric models make an assumotion about the “True” form of the data (i.e. that it is linear) and they then fit model parameters that will minimize residual error according to some criterion (ie OLS). This approach is good becase it gives a quantitative fit, it can provide useful predictions (ie extrapolating the line for a regression, making a best guess for a classification) and it is fairly easy to interpret. Some disadvantages are that one could always be wrong about the underling structure of the data, and one could also feel tempted to add as many possible predictors as possible to the model, even when they aren’t very good descriptors, which could lead to overfitting.</p></li>
+<li><p>Nonparametric models don’t assume or try to find the “True” form of the data, instead they find a pattern without this underlying assumption. The disadvatages are that they need a lot of data, and that it is more difficult to interpret. Not having an underlying assumption about structure might</p></li>
+</ul>
+<p>Computing assignment: ISL 2.4.8, 2.4.9</p>
+<p>As an example: a solution to 2.4.10.</p>
 </div>
-<div id="task5" class="section level2">
-<h2>Task5</h2>
-<pre class="r"><code>task5top&lt;-Auto[0:5,0:3]
-
-task5bottom&lt;-Auto[(nrow(Auto)-4):nrow(Auto),(ncol(Auto)-2):ncol(Auto)]
-
-print(task5top)</code></pre>
-<pre><code>##   mpg cylinders displacement
-## 1  18         8          307
-## 2  15         8          350
-## 3  18         8          318
-## 4  16         8          304
-## 5  17         8          302</code></pre>
 </div>
-<div id="task6" class="section level2">
-<h2>Task6</h2>
-<pre class="r"><code>devtools::install_github(&quot;dtkaplan/Math-253/DailyProgrammingTasks/scoreActivity&quot;)</code></pre>
-<pre><code>## Downloading GitHub repo dtkaplan/Math-253@master</code></pre>
-<pre><code>## Installing scoreActivity</code></pre>
-<pre><code>## '/usr/lib64/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \
-##   CMD INSTALL  \
-##   '/tmp/RtmpCRH0jm/devtools7f2157d05fd2/dtkaplan-Math-253-a8d6128/DailyProgrammingTasks/scoreActivity'  \
-##   --library='/home/local/MAC/mensleyf/R/library' --install-tests</code></pre>
-<pre><code>## </code></pre>
+<div id="theory-assignment-isl-2.4.2-2.4.7." class="section level1">
+<h1>Theory assignment: ISL 2.4.2, 2.4.7.</h1>
+<div id="section-3" class="section level2">
+<h2>2.4.2</h2>
+<p>Explain whether each scenario is a classification or regression problem, and indicate whether we are most interested in inference or prediction. Finally, provide n and p.</p>
+<p><em>(a) We collect a set of data on the top 500 firms in the US. For each firm we record profit, number of employees, industry and the CEO salary. We are interested in understanding which factors affect CEO salary.</em></p>
+<ul>
+<li>This is a regression problem because we are looking for a quantitative result (salary) based on (mostly) quantitative inputs such as number of employees, profit, and industry. If we were trying to categorize CEO pay as “high” or “low” then we’d have a classificaiton proble, but we are instead trying to quantify it. We are more interested in inference because we want to understand why CEO salary is what it is and if it has a relationship to our predictors, we are not trying to predict it. n is the amount of training data, 400 firms, and p is the number of predictors, 3.</li>
+</ul>
+<p><em>(b) We are considering launching a new product and wish to know whether it will be a success or a failure. We collect data on 20 similar products that were previously launched. For each product we have recorded whether it was a success or failure, price charged for the product, marketing budget, competition price, and ten other variables.</em></p>
+<p>This is a classification problem, because our result is qualitative (yes/no) not quantitative. We are interested in predicting, not understanding the causal mechanism, because while we are collecting and using data on predictors, our rend goal is to make a yes/no prediction accurately. n is 20 and p is 13.</p>
+<p><em>(c) We are interesting in predicting the % change in the US dollar in relation to the weekly changes in the world stock markets. Hence we collect weekly data for all of 2012. For each week we record the % change in the dollar, the % change in the US market, the % change in the British market, and the % change in the German market.</em></p>
+<ul>
+<li>This is a regression problem because it is trying to find the quantitative change in percent. We are interested in prediction, not the causal mechanisms. n is 52, and p is 4.</li>
+</ul>
 </div>
-<div id="test-statements" class="section level2">
-<h2>Test statements</h2>
-<pre class="r"><code>scoreActivity::score253(2)</code></pre>
-<pre><code>## --------
-## Running test statements for day  02</code></pre>
-<pre><code>## Loading required package: scoreActivity</code></pre>
-<pre><code>## Loading required package: lazyeval</code></pre>
-<pre><code>## passed: object &quot;Auto&quot; exists
-## passed: is.character(auto_file_name)
-## passed: object &quot;task3&quot; exists
-## passed: &quot;package:ISLR&quot; %in% search()
-## passed: nrow(task5top)
-## passed: ncol(task5top)
-## passed: nrow(task5bottom)
-## passed: ncol(task5bottom)
-## passed: task5top[5, 3] == Auto[5, 3]
-## passed: task5bottom[5, 3] == Auto[nrow(Auto), ncol(Auto)]</code></pre>
+<div id="section-4" class="section level2">
+<h2>2.4.7</h2>
 </div>
 </div>
 
