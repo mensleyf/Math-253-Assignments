@@ -119,80 +119,78 @@ $(document).ready(function () {
 </div>
 
 
-<div id="topic-1-exercises" class="section level1">
-<h1>Topic 1 Exercises</h1>
 <div id="mira-ensley-field" class="section level2">
 <h2>Mira Ensley-Field</h2>
-<p>#Discussion questions: ISL 2.4.1, 2.4.3, 2.4.6</p>
-<p>##2.4.1</p>
-<p><em>(a) The sample size n is extremely large, and the number of predictors p is small.</em> - I would expect a more flexible approach to be better than an inflexible approach. As we increase flexibility, the variance of our model will be increasing and we run the risk of overfitting our model, and our bias will decrease as an underlying assumption about the structure of our data becomes less fixed. The question is, which one of these two will be increasing and decreasing faster. In this case, with few predictors but lots of data, variance will increasing slower than bias is increasing.</p>
-<p><em>(b) The number of predictors p is extremely large, and the number of observations n is small.</em></p>
+</div>
+<div id="discussion-questions-isl-2.4.1-2.4.3-2.4.6" class="section level1">
+<h1>Discussion questions: ISL 2.4.1, 2.4.3, 2.4.6</h1>
+<div id="section" class="section level2">
+<h2>2.4.1</h2>
+<ol style="list-style-type: lower-alpha">
+<li>The sample size n is extremely large, and the number of predictors p is small.*</li>
+</ol>
 <ul>
-<li>I would expect an inflexible approach to work better in this case, for the opposite reasons. If we have lots of predictors, but little data, it would be easy to overfit the data, but we have many predictors we can use to</li>
+<li>I would expect a more <strong>flexible approach</strong> to be better than an inflexible approach. As we increase flexibility, the variance of our model will be increasing and we run the risk of overfitting our model, and our bias will decrease as an underlying assumption about the structure of our data becomes less fixed. The question is, which one of these two will be increasing and decreasing faster. In this case, I suspect that on average with few predictors but lots of data, variance will increasing slower than bias is increasing. With few predictors, it is probably difficult to come up with a good model assumption and it is likely there will be systematic error in that we are omitting relevant variables. Variance however, will be less affected by few predictprs and decreased by the large n</li>
+</ul>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>The number of predictors p is extremely large, and the number of observations n is small.*</li>
+</ol>
+<ul>
+<li>I would expect an <strong>inflexible approach</strong> to work better in this case, for the opposite reasons. If we have lots of predictors, but little data the trade-off between bias and variance still exists, but we are better able to make a good underlying model assumption using our predictors, and variance will be high due to our large n.</li>
 </ul>
 <ol start="3" style="list-style-type: lower-alpha">
 <li>The relationship between the predictors and response is highly non-linear.</li>
 </ol>
 <ul>
-<li></li>
+<li>I would expect a <strong>flexible</strong> approach to work better because it is going to be difficult to come up with an simple underlying assumption about the relationship between predictors and response, and our attempt to model that assumption will likely deviate substaintially from the “true” equation. Thus, bias will be high so we should try to use a flexible approach.</li>
 </ul>
 <ol start="4" style="list-style-type: lower-alpha">
 <li>The variance of the error terms, i.e. σ2 = Var(), is extremely high.</li>
 </ol>
-<p>##2.4.3 *We now revisit the bias-variance decomposition. (a) Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the method, and the y-axis should represent the values for each curve. There should be five curves. Make sure to label each one.</p>
-<p>(b)Explain why each of the five curves has the shape displayed in part (a).*</p>
-<p>##2.4.6</p>
-<p><em>Describe the differences between a parametric and a non-parametric statistical learning approach. What are the advantages of a parametric approach to regression or classification (as opposed to a nonparametric approach)? What are its disadvantages?</em></p>
 <ul>
-<li><p>Parametric models make an assumotion about the “True” form of the data (i.e. that it is linear) and they then fit model parameters that will minimize residual error according to some criterion (ie OLS). This approach is good becase it gives a quantitative fit, it can provide useful predictions (ie extrapolating the line for a regression, making a best guess for a classification) and it is fairly easy to interpret. Some disadvantages are that one could always be wrong about the underling structure of the data, and one could also feel tempted to add as many possible predictors as possible to the model, even when they aren’t very good descriptors, which could lead to overfitting.</p></li>
-<li><p>Nonparametric models don’t assume or try to find the “True” form of the data, instead they find a pattern without this underlying assumption. The disadvatages are that they need a lot of data, and that it is more difficult to interpret. Not having an underlying assumption about structure might</p></li>
+<li>I would expect an <strong>inflexible</strong> approach to work better, a high amount of ε (epsilon/ irreducible error/noise) tends to uncrease the variance of the test MSE, making it less reliable and predictive.</li>
 </ul>
 </div>
+<div id="section-1" class="section level2">
+<h2>2.4.3</h2>
+<p><em>We now revisit the bias-variance decomposition. (a) Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the method, and the y-axis should represent the values for each curve. There should be five curves. Make sure to label each one.</em></p>
+<p><em>(b)Explain why each of the five curves has the shape displayed in part (a).</em></p>
 </div>
-<div id="computing-assignment-isl-2.4.8-2.4.9" class="section level1">
-<h1>Computing assignment: ISL 2.4.8, 2.4.9</h1>
-<div id="a." class="section level2">
-<h2>a.)</h2>
-<pre class="r"><code>#download.file(&quot;http://www-bcf.usc.edu/~gareth/ISL/College.csv&quot;,destfile=&quot;College.csv&quot;)
-college&lt;-read.csv(&quot;College.csv&quot;)</code></pre>
+<div id="section-2" class="section level2">
+<h2>2.4.6</h2>
+<p><em>Describe the differences between a parametric and a non-parametric statistical learning approach. What are the advantages of a parametric approach to regression or classification (as opposed to a nonparametric approach)? What are its disadvantages?</em></p>
+<ul>
+<li><p>Parametric models make an assumption about the “True” form of the data (i.e. that it is linear) and they then fit model parameters that will minimize residual error according to some criterion (ie OLS). This approach is good becase it gives a quantitative fit, it can provide useful predictions (such as extrapolating the line for a regression, making a best guess for a classification) and it is fairly easy to interpret. Most people are very familiar with an R^2 value or a p value which Some disadvantages are that one could always be wrong about the underling structure of the data, and one could also feel tempted to add as many possible predictors as possible to the model, even when they aren’t very good descriptors, which could lead to overfitting.</p></li>
+<li>Nonparametric models don’t assume or try to find the “True” form of the data, instead they find a pattern without this underlying assumption. This can ve very useful when there is a wide range of values and/or shapes for the ideal f(x) that are difficult to create a model for. The disadvatages are that they need a lot of data, and that it is more difficult to interpret. Not having an underlying assumption about structure might
+<ul>
+<li>examples of nonparametric approach…</li>
+</ul></li>
+</ul>
 </div>
-<div id="b." class="section level2">
-<h2>b.)</h2>
-<pre class="r"><code> rownames(college)=college[,1]
- #fix(college)
- 
- college=college[,-1]
- #fix(college)</code></pre>
+<div id="computing-assignment-isl-2.4.8-2.4.9" class="section level2">
+<h2>Computing assignment: ISL 2.4.8, 2.4.9</h2>
 </div>
-<div id="c." class="section level2">
-<h2>c.)</h2>
-<pre class="r"><code># print(summary(college))
- 
-# print(pairs(college[,1:10] ))
- 
- #plot(college$Outstate,college$Private)
- 
- #length = 777, but saying they vary
- 
- Elite=rep(&quot;No&quot;,nrow(college))
- Elite[college$Top10perc&gt;50]=&quot;Yes&quot;
- Elite=as.factor(Elite)
- college=data.frame(college, Elite)
- 
- print(summary(Elite))</code></pre>
-<pre><code>##  No Yes 
-## 699  78</code></pre>
-<pre class="r"><code> #there are 78 'Elite' universities
- 
-# plot(Outstate,Private,data=Elite)</code></pre>
 </div>
+<div id="section-3" class="section level1">
+<h1>2.4.8</h1>
+<pre class="r"><code>#download.file(&quot;http://www-bcf.usc.edu/~gareth/ISL/College.csv&quot;, #destfile=&quot;College.csv&quot;)
+college&lt;-read.csv(&quot;College.csv&quot;)
+
+rownames(college)=college[,1]
+#fix(college) not working
+View(college)</code></pre>
+</div>
+<div id="section-4" class="section level1">
+<h1>2.4.9</h1>
 </div>
 <div id="as-an-example-a-solution-to-2.4.10." class="section level1">
 <h1>As an example: a solution to 2.4.10.</h1>
 </div>
 <div id="theory-assignment-isl-2.4.2-2.4.7." class="section level1">
 <h1>Theory assignment: ISL 2.4.2, 2.4.7.</h1>
-<p>## 2.4.2 Explain whether each scenario is a classification or regression problem, and indicate whether we are most interested in inference or prediction. Finally, provide n and p.</p>
+<div id="section-5" class="section level2">
+<h2>2.4.2</h2>
+<p>Explain whether each scenario is a classification or regression problem, and indicate whether we are most interested in inference or prediction. Finally, provide n and p.</p>
 <p><em>(a) We collect a set of data on the top 500 firms in the US. For each firm we record profit, number of employees, industry and the CEO salary. We are interested in understanding which factors affect CEO salary.</em></p>
 <ul>
 <li>This is a regression problem because we are looking for a quantitative result (salary) based on (mostly) quantitative inputs such as number of employees, profit, and industry. If we were trying to categorize CEO pay as “high” or “low” then we’d have a classificaiton proble, but we are instead trying to quantify it. We are more interested in inference because we want to understand why CEO salary is what it is and if it has a relationship to our predictors, we are not trying to predict it. n is the amount of training data, 400 firms, and p is the number of predictors, 3.</li>
@@ -201,9 +199,15 @@ college&lt;-read.csv(&quot;College.csv&quot;)</code></pre>
 <p>This is a classification problem, because our result is qualitative (yes/no) not quantitative. We are interested in predicting, not understanding the causal mechanism, because while we are collecting and using data on predictors, our rend goal is to make a yes/no prediction accurately. n is 20 and p is 13.</p>
 <p><em>(c) We are interesting in predicting the % change in the US dollar in relation to the weekly changes in the world stock markets. Hence we collect weekly data for all of 2012. For each week we record the % change in the dollar, the % change in the US market, the % change in the British market, and the % change in the German market.</em></p>
 <ul>
-<li>This is a regression problem because it is trying to find the quantitative change in percent. We are interested in prediction, not the causal mechanisms. n is 52, and p is 4.</li>
+<li>This is a regression problem because it is trying to find the quantitative change in percent. We are interested in prediction, not the causal mechanisms. n is 52, and p is</li>
 </ul>
-<p>##2.4.7</p>
+<ol start="4" style="list-style-type: decimal">
+<li></li>
+</ol>
+</div>
+<div id="section-6" class="section level2">
+<h2>2.4.7</h2>
+</div>
 </div>
 
 
