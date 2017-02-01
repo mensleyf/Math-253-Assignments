@@ -1,8 +1,28 @@
 # In-Class Programming Activity, Day 3
 
-Your work goes here ...
+#Mira
+#Task 1
 
+```{r}
 
+library(ISLR)
+data(College,package = "ISLR")
+```
+
+#Task 2
+
+```{r}
+
+Yield<-(College$Enroll/College$Accept)
+cbind(College,Yield)
+```
+
+#Task 3
+```{r}
+all_indices<-c(1:nrow(College))
+train_indices<-sample(all_indices,size=200)
+test_indices
+```
 
 ## Test statements
 
