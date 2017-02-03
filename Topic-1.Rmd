@@ -35,11 +35,64 @@
  represent the values for each curve. There should be five curves.
  Make sure to label each one.*
  
- 
- 
- 
-*(b)Explain why each of the five curves has the shape displayed in
- part (a).*
+```{r}
+plot(1, xlim = c(0, 100), ylim = c(0,100), type="n", ylab= "Hi                           Low ", xlab = "Flexibility"
+     , xaxt="n",yaxt="n", main="How bias, variance, training error, test error, and irreducible error respond to increasing flexibility" )
+
+#Variance calcs:
+var<-seq(from =0, to = 100, by = 5)
+varX<-var
+varZ<-(exp(1)^(.035*var))
+lines(varX,varZ,col="blue")
+text(x=100,y=40,col="blue", labels="Variance")
+
+
+#Bias calcs
+bias<-seq(from =0, to = 100, by = 5)
+biasX<-var
+biasY<-(-exp(1)^(.035*var)+40)
+lines(biasX,biasY,col="red")
+text(x=100,y=20,col="red", labels="Bias")
+
+#irreducible error
+irrX<-seq(from =0, to = 100, by = 100)
+irrY<-c(5,5)
+lines(irrX,irrY,col="black")
+text(x=100,y=3,labels="irreducible error")
+text(x=100,y=0,labels=" error")
+
+
+#Training error
+bias<-seq(from =0, to = 100, by = 5)
+biasX<-bias
+biasY<-(-exp(1)^(.04*bias)+70)
+lines(biasX,biasY,col="purple")
+text(x=70,y=60,col="purple", labels="Training Error")
+
+#Test error
+p1X<-seq(from =0, to = 30, by = 5)
+p1Y<-(-p1X^(.9)+90)
+lines(p1X,p1Y,col="gold")
+
+p2X<-seq(from=30,to=100,by=5)
+p2Y<-exp(1)^(.035*p2X)+66
+lines(p2X,p2Y,col="gold")
+text(x=80,y=100,col="gold", labels="Test Error")
+
+
+
+
+```
+
+**Irreducible** curve is low because in this hypothetical we have decent instruments that don't have a lot of noise, it doesn't change no matter how flexible of a model we use. 
+
+**Bias** starts high in the inflexible model, perhaps because it doesnät represent the äTrueÄ form particularly well, but decreases as flexibilitz increases. This is because as we allow the model to have fewer underlzing assumptions about the structure of the data, there will be less szstematic error due to differences in model structure and the Ätrue model.
+
+**Variance** starts low and then increases as flexibilitz increases. Variance is the amount of change between the test and training data, and as the model becomes more and more flexible, it can become overfitted, essentiallz it follows the training data better and better, but loses its connection to the test data. The increasing variance and decreasing bias with increasing flexibilitz is know as the biasßvariance tradeoff.
+
+The **testing MSE** has a parabolic shape. It has a minimum at the point at which bias has decreased and variance hasnät begun to rise to much, so naturallz it depends on the rate at which variance and bias and increasing and decreasing respectivelz. This is what the ideal model should be attempting to minimize.
+
+The **training model** starts high and decreases. It can never increase as flexibilitz increases, this is essentiallz like adding more paramters, even adding completelz unrelated explanatorz variables will never make the training MSE go down )it will however, negativelz impact the test MSE=
  
 ##2.4.6
  
@@ -68,9 +121,9 @@ data(College,package = "ISLR")
 
 ```
 
-a.) Using the book method
+b.) I could not get the fix() function to work..I got an error message with the start data editor, instead I followed the example provided on the website. I still viewed the da
 ```{r,eval=FALSE}
-college=read.csv("College.csv", header=T,na.strings="?")
+fix(college)
 ```
 
 
@@ -90,7 +143,7 @@ fix(college)
 ```
 
 c.) Plots (i-iii)
-```{r}
+```{r,eval=FALSE}
 summary(college)
  
 pairs(college[,1:10] )
@@ -138,12 +191,12 @@ Quantitative predictors:
 - acceleration
 - year
 - origin"       "name" 
+
 Qualitative predictors:
 - cylinders"    "displacement" "horsepower"   "weight"      
 [6] "acceleration" "year"         "origin"       "name" 
 
-#As an example: a solution to 2.4.10.
- 
+
 #Theory assignment: ISL 2.4.2, 2.4.7.
  
 ## 2.4.2
@@ -179,4 +232,63 @@ This is a classification problem, because our result is qualitative (yes/no) not
 
 4.
  
-##2.4.7
+##2.4.7 
+Table wtih training data, 6 observations, 3 predictors, 1 qualitative response
+
+a.) compute Euclidiant distance between each observation and the test point (0,0,0)
+
+```{r}
+Obs1<-c(0,3,0)
+Obs2<-c(2,0,0)
+Obs3<-c(0,1,3)
+Obs4<-c(0,1,2)
+Obs5<-c(-1,0,1)
+Obs6<-c(1,1,1)
+
+distance1<-((Obs1[1]^2+Obs1[2]^2+Obs1[3]^2))^(1/3)
+distance2<-((Obs2[1]^2+Obs2[2]^2+Obs2[3]^2))^(1/3)
+distance3<-((Obs3[1]^2+Obs3[2]^2+Obs3[3]^2))^(1/3)
+distance4<-((Obs4[1]^2+Obs4[2]^2+Obs4[3]^2))^(1/3)
+distance5<-((Obs5[1]^2+Obs5[2]^2+Obs5[3]^2))^(1/3)
+distance6<-((Obs6[1]^2+Obs6[2]^2+Obs6[3]^2))^(1/3)
+```
+
+b.) Prediction if k=1
+- prediction = green
+- for k=1, the closes value in distances 1-6 to 0 is distance5 of 1.25, which is green
+
+c.) Prediction if k=3
+- prediction = red
+- for k=3, the three closest values are distance5, distance6, and distance2, which are green, red, and red, so we predict red
+
+d.) if Bayes decision boundary is highly non-linear, the would we expect best value of K to be large or small?
+
+```{r}
+kis3<-distance5+distance6+distance2
+
+```
+
+should be able to make this into a loop and save a negligible amount of time and space
+
+myList = list(Obs1,Obs2,Obs3,Obs4,Obs5,Obs6)
+distanceList = list()
+count<-0
+```
+
+
+for (name in names(myList)) 
+    print(name)
+    print(myList[[name]])
+
+```
+
+
+
+for (name in names(myList)) {
+    distance<-((name[1]^2+name[2]^2+name[3]^2))^(1/3)
+    count+count+1
+    distanceList[count]=distance
+    print(distance)
+}
+print(distanceList)
+```
