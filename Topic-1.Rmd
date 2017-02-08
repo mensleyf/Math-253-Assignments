@@ -8,12 +8,12 @@
 (a) The sample size n is extremely large, and the number of predictors
  p is small.*
  
-- I would expect a more **flexible approach** to be better than an inflexible approach. As we increase flexibility, the variance of our model will be increasing and we run the risk of overfitting our model, and our bias will decrease as an underlying assumption about the structure of our data becomes less fixed. The question is, which one of these two will be increasing and decreasing faster. In this case, I suspect that on average with few predictors but lots of data, variance will increasing slower than bias is increasing. With few predictors, it is probably difficult to come up with a good model assumption and it is likely there will be systematic error in that we are omitting relevant variables. Variance however, will be less affected by few predictprs and decreased by the large n
+- I would expect a more **flexible approach** to be better than an inflexible approach. As we increase flexibility, the variance of our model will be increasing and we run the risk of overfitting our model, and our bias will decrease as an underlying assumption about the structure of our data becomes less fixed. The question is, which one of these two will be increasing and decreasing faster. In this case, where there are few predictors but lots of data, variance will be increasing slower than bias is decreasing With few predictors, it is probably difficult to come up with a good model assumption and it is likely there will be systematic error in that we are omitting relevant variables. Variance however, will be less affected by few predictors so increasing flexibility will be a better approach.
  
 (b) The number of predictors p is extremely large, and the number
  of observations n is small.*
  
-- I would expect an **inflexible approach** to work better in this case, for the opposite reasons. If we have lots of predictors, but little data the trade-off between bias and variance still exists, but we are better able to make a good underlying model assumption using our predictors, and variance will be high due to our large n.
+- I would expect an **inflexible approach** to work better in this case, for the opposite reasons. If we have lots of predictors, but little data the trade-off between bias and variance still exists, but we are better able to make a good underlying model assumption using our predictors, and variance will be high due to our small n. Very flexible models require large observations (n) to be good
  
 (c) The relationship between the predictors and response is highly
  non-linear.
@@ -84,15 +84,15 @@ text(x=80,y=100,col="gold", labels="Test Error")
 
 ```
 
-**Irreducible** curve is low because in this hypothetical we have decent instruments that don't have a lot of noise, it doesn't change no matter how flexible of a model we use. 
+The **Irreducible** curve is low because in this hypothetical graph I am assuming we have decent instruments that don't have a lot of noise/random error. The level of irreducible error depends on the study, and it is flat because it doesn't change no matter how flexible of a model we use. 
 
-**Bias** starts high in the inflexible model, perhaps because it doesnät represent the äTrueÄ form particularly well, but decreases as flexibilitz increases. This is because as we allow the model to have fewer underlzing assumptions about the structure of the data, there will be less szstematic error due to differences in model structure and the Ätrue model.
+**Bias** starts high in the inflexible model, perhaps because it doesn't represent the "True" form particularly well, but decreases as flexibility increases. This is because as we allow the model to have fewer underlying assumptions about the structure of the data, there will be less systematic error due to differences in model structure and the "True"" model. As a general rule, bias always decreases, but depending on the data, it can decrease at very different rates.
 
-**Variance** starts low and then increases as flexibilitz increases. Variance is the amount of change between the test and training data, and as the model becomes more and more flexible, it can become overfitted, essentiallz it follows the training data better and better, but loses its connection to the test data. The increasing variance and decreasing bias with increasing flexibilitz is know as the biasßvariance tradeoff.
+**Variance** starts low and then increases as flexibility increases. Variance is the amount of change between the test and training data, and as the model becomes more and more flexible, it can become overfitted, essentially it follows the training data better and better, but loses its connection to the test data. The increasing variance and decreasing bias with increasing flexibility is know as the bias-variance tradeoff. Again, variance will always increase as flexibility increases, and depending on the data, that happens at different rates.
 
-The **testing MSE** has a parabolic shape. It has a minimum at the point at which bias has decreased and variance hasnät begun to rise to much, so naturallz it depends on the rate at which variance and bias and increasing and decreasing respectivelz. This is what the ideal model should be attempting to minimize.
+The **testing MSE** has a parabolic or "U" shape. It has a minimum at the point at which bias has decreased a lot and variance hasn't begun to rise too much, so naturally it depends on the rate at which variance and bias and increasing and decreasing respectively. This is what the ideal model should be attempting to minimize.
 
-The **training model** starts high and decreases. It can never increase as flexibilitz increases, this is essentiallz like adding more paramters, even adding completelz unrelated explanatorz variables will never make the training MSE go down )it will however, negativelz impact the test MSE=
+The **training MSE** starts high and decreases. It can never increase as flexibility increases because the model will just get more and more specific to the training data.This is essentially like adding more paramters, even adding completely unrelated explanatory variables will never make the training MSE go down and will usually make it go up a little bit. 
  
 ##2.4.6
  
@@ -101,11 +101,11 @@ The **training model** starts high and decreases. It can never increase as flexi
  approach to regression or classification (as opposed to a nonparametric
  approach)? What are its disadvantages?*
  
-- Parametric models make an assumption about the "True" form of the data (i.e. that it is linear) and they then fit model parameters that will minimize residual error according to some criterion (ie OLS). This approach is good becase it gives a quantitative fit, it can provide useful predictions (such as extrapolating the line for a regression, making a best guess for a classification) and it is fairly easy to interpret. Most people are very familiar with an R^2 value or a p value which Some disadvantages are that one could always be wrong about the underling structure of the data, and one could also feel tempted to add as many possible predictors as possible to the model, even when they aren't very good descriptors, which could lead to overfitting.
+- Parametric models make an assumption about the "True" form of the data (for example, that it is linear) and they then fit model parameters that will minimize residual error according to some criterion (for example, Ordinary Least Squares criterion). This approach is good becase it gives a quantitative fit, it can provide useful predictions (such as extrapolating the line for a regression, making a best guess for a classification) and it is fairly easy to interpret. Most people are very familiar with an R^2 value or a p value on different coefficients. Some disadvantages are that one could always be wrong about the underling structure of the data, and one could also feel tempted to add as many possible predictors as possible to the model, even when they aren't very good descriptors, which could lead to overfitting. 
     + examples of parametric approach include...
     + linear regression and Ordinary Least Squares
  
-- Nonparametric models don't assume or try to find the "True" form of the data, instead they find a pattern without this underlying assumption. This can ve very useful when there is a wide range of values and/or shapes for the ideal f(x) that are difficult to create a model for. The disadvatages are that they need a lot of data, and that it is more difficult to interpret. Not having an underlying assumption about structure might
+- Nonparametric models don't assume or try to find the "True" form of the data, instead they find a pattern without this underlying assumption. They essentially try to fit a model to the data without being obligated to make an assumption about the true form of the data. This can be very useful when there is a wide range of values and/or shapes for the ideal f(x) that are difficult to create a model for. The disadvatages are that they need a lot of data, and that it is more difficult to interpret. Additionally, often non-parametric models need to balance choosing the correct amount of flexibility or smoothness which can be a problem.
     + examples of nonparametric approach...
     + thin-plate spline
  
@@ -114,61 +114,83 @@ The **training model** starts high and decreases. It can never increase as flexi
 
 #2.4.8
 
-a.) Using the method we learned in class, not book method
+a.) 
 ```{r}
 library(ISLR)
 data(College,package = "ISLR")
 
 ```
 
-b.) I could not get the fix() function to work..I got an error message with the start data editor, instead I followed the example provided on the website. I still viewed the da
-```{r,eval=FALSE}
-fix(college)
+b.) I could not get the fix() function to work..I got an error message with the start data.  editor. But I have been told that is becase the fix() function is obsolete and also there are better ways to manipulate data that don't operate so directly with the data.
+
+```{r,eval = FALSE}
+fix(College)
 ```
 
-
-b.)
-```{r, eval =FALSE}
-#View(College)
-rownames(college)=college[,1]
-fix(college)
-
+c.) 
+```{r}
+summary(College)
 ```
 
+c.) ii
 
-```{r, eval =FALSE}
-college=college[,-1]
-fix(college)
-
+```{r}
+pairs(College[1:10])
 ```
 
-c.) Plots (i-iii)
-```{r,eval=FALSE}
-summary(college)
+c.) iii
+
+```{r}
+boxplot(College$Outstate~College$Private, ylab="Tuition", xlab="Private", main="Private vs Public Schools Out-of-State Tuition")
+```
+
+c.) Elite iv:  There are 78 'Elite' universities
+
+```{r}
  
-pairs(college[,1:10] )
-
-boxplot(college$Outstate,college$Private,data=college)
-```
-c.) Elite (iv-v)
-```{}
- #plot(college$Outstate,college$Private)
- 
- #length = 777, but saying they vary
- 
- Elite=rep("No",nrow(college))
- Elite[college$Top10perc>50]="Yes"
+ Elite=rep("No",nrow(College))
+ Elite[College$Top10perc>50]="Yes"
  Elite=as.factor(Elite)
- college=data.frame(college, Elite)
+ College=data.frame(College, Elite)
  
- print(summary(Elite))
- #there are 78 'Elite' universities
+summary(Elite)
  
-# plot(Outstate,Private,data=Elite)
+boxplot(College$Outstate~College$Elite,ylab="Tuition", xlab="Elite", main="Elite (Top 10% Schools) vs other Schools Out-of-State Tuition")
+```
+
+c.) v
+```{r}
+par(mfrow=c(2,2))
+
+hist(College$Outstate, breaks=5)
+hist(College$Outstate, breaks=10)
+hist(College$Outstate, breaks=20)
+hist(College$Outstate, breaks=40)
+
 
 ```
- c.) Exploring data summary (vi)
- 
+
+
+c.) Exploring data summary vi
+
+I looked to see whether there were any immediately obvious associations between different characteristics of schools and whether they spent a lot of money per student. I calculated an "admissions rate" as an additional and more inuitive parameter, as it is one I am very used to seeing. I found a few unsurprising things, such as  characteristics such as   low admissions rates and low  student-to-faculty ratios,  tend to increase along with expenditure per student. And characteristics such as lots oh PhD professors, a high graduation rate,  also tend to be high when expenditure is high. I also notice there seems to be a number of small, very selective schools that appear to be driving a lot of the associations, and often appear as outliers. It would also be interesting to compare this data to a College Rankings list and see how well we can predict (perhaps even crack the code!) of how College Ranking works.  (I set code that I used to ```{r, include=FALSE } because this is so long already...)
+
+
+```{r, include=FALSE}
+
+College$Admiss<-College$Accept/College$Apps
+
+hist(College$Admiss, breaks=40)
+plot(Expend~Admiss,data=College)
+
+plot(Expend~S.F.Ratio,data=College)
+plot(Expend~Private,data=College)
+plot(Expend~F.Undergrad,data=College)
+plot(Expend~PhD,data=College)
+plot(Expend~Grad.Rate,data=College)
+plot(Expend~perc.alumni,data=College)
+
+```
  
  
 
@@ -184,17 +206,30 @@ data(Auto,package = "ISLR")
 a.)
 Quantitative predictors:
 - mpg
+
 - cylinders (but could make a  case that this is categorical as well since there are only certain numbers of cylinders cars have)
+
 - displacement
+
 - horsepower
+
 - weight
+
 - acceleration
+
 - year
-- origin"       "name" 
+
+- origin"      
+
+- "name" 
 
 Qualitative predictors:
-- cylinders"    "displacement" "horsepower"   "weight"      
-[6] "acceleration" "year"         "origin"       "name" 
+
+- cylinders (arguably--see above)  
+
+- origin
+
+- name" 
 
 
 #Theory assignment: ISL 2.4.2, 2.4.7.
@@ -209,7 +244,7 @@ Explain whether each scenario is a classification or regression problem,
  CEO salary. We are interested in understanding which factors
  affect CEO salary.*
  
-- This is a regression problem because we are looking for a quantitative result (salary) based on (mostly) quantitative inputs such as number of employees, profit, and industry. If we were trying to categorize CEO pay as "high" or "low" then we'd have a classificaiton proble, but we are instead trying to quantify it. We are more interested in inference because we want to understand why CEO salary is what it is and if it has a relationship to our predictors, we are not trying to predict it. n is the amount of training data, 400 firms, and p is the number of predictors, 3.
+- This is a regression problem because we are looking for a quantitative result (salary) based on (mostly) quantitative inputs such as number of employees, profit, and industry. If we were trying to categorize CEO pay as "high" or "low" then we'd have a classificaiton proble, but we are instead trying to quantify it. We are more interested in inference because we want to understand why CEO salary is what it is and if it has a relationship to our predictors, we are not trying to predict it. n is the amount of observations, 400 firms, and p is the number of predictors, 3.
  
 *(b) We are considering launching a new product and wish to know
  whether it will be a success or a failure. We collect data on 20
@@ -218,7 +253,7 @@ Explain whether each scenario is a classification or regression problem,
  charged for the product, marketing budget, competition price,
 and ten other variables.*
  
-This is a classification problem, because our result is qualitative (yes/no) not quantitative. We are interested in predicting, not understanding the causal mechanism, because while we are collecting and using data on predictors, our rend goal is to make a yes/no prediction accurately. n is 20 and p is 13.
+- This is a classification problem, because our result is qualitative (yes/no) not quantitative. We are interested in predicting, not understanding the causal mechanism, because while we are collecting and using data on predictors, our end goal is to make a yes/no prediction accurately. n is 20 and p is 13 (if we include the yes/no as a predictor--which I don't think we would, p would be 14)
  
  
 *(c) We are interesting in predicting the % change in the US dollar in
@@ -228,14 +263,14 @@ This is a classification problem, because our result is qualitative (yes/no) not
  the % change in the British market, and the % change in the
  German market.*
  
-- This is a regression problem because it is trying to find the quantitative change in percent. We are interested in prediction, not the causal mechanisms. n is 52, and p is 
+- This is a regression problem because it is trying to find the quantitative change in percent. We are interested in prediction, not the causal mechanisms. n is 52 (because one 'observaton' is one week of data) and p is 4 
 
 4.
  
 ##2.4.7 
 Table wtih training data, 6 observations, 3 predictors, 1 qualitative response
 
-a.) compute Euclidiant distance between each observation and the test point (0,0,0)
+a.) compute Euclidian distance between each observation and the test point (0,0,0)
 
 ```{r}
 Obs1<-c(0,3,0)
@@ -245,50 +280,29 @@ Obs4<-c(0,1,2)
 Obs5<-c(-1,0,1)
 Obs6<-c(1,1,1)
 
-distance1<-((Obs1[1]^2+Obs1[2]^2+Obs1[3]^2))^(1/3)
-distance2<-((Obs2[1]^2+Obs2[2]^2+Obs2[3]^2))^(1/3)
-distance3<-((Obs3[1]^2+Obs3[2]^2+Obs3[3]^2))^(1/3)
-distance4<-((Obs4[1]^2+Obs4[2]^2+Obs4[3]^2))^(1/3)
-distance5<-((Obs5[1]^2+Obs5[2]^2+Obs5[3]^2))^(1/3)
-distance6<-((Obs6[1]^2+Obs6[2]^2+Obs6[3]^2))^(1/3)
+print(distance1<-((Obs1[1]^2+Obs1[2]^2+Obs1[3]^2))^(1/3))
+print(distance2<-((Obs2[1]^2+Obs2[2]^2+Obs2[3]^2))^(1/3))
+print(distance3<-((Obs3[1]^2+Obs3[2]^2+Obs3[3]^2))^(1/3))
+print(distance4<-((Obs4[1]^2+Obs4[2]^2+Obs4[3]^2))^(1/3))
+print(distance5<-((Obs5[1]^2+Obs5[2]^2+Obs5[3]^2))^(1/3))
+print(distance6<-((Obs6[1]^2+Obs6[2]^2+Obs6[3]^2))^(1/3))
 ```
 
-b.) Prediction if k=1
+
+b.) What is our prediction with K = 1? Why?
+
 - prediction = green
+
 - for k=1, the closes value in distances 1-6 to 0 is distance5 of 1.25, which is green
 
-c.) Prediction if k=3
+c.) What is our prediction with K = 3? Why?
+
 - prediction = red
+
 - for k=3, the three closest values are distance5, distance6, and distance2, which are green, red, and red, so we predict red
 
-d.) if Bayes decision boundary is highly non-linear, the would we expect best value of K to be large or small?
+d.)  If the Bayes decision boundary in this problem is highly nonlinear,
+then would we expect the best value for K to be large or
+small? Why?
 
-```{r}
-kis3<-distance5+distance6+distance2
-
-```
-
-should be able to make this into a loop and save a negligible amount of time and space
-
-myList = list(Obs1,Obs2,Obs3,Obs4,Obs5,Obs6)
-distanceList = list()
-count<-0
-```
-
-
-for (name in names(myList)) 
-    print(name)
-    print(myList[[name]])
-
-```
-
-
-
-for (name in names(myList)) {
-    distance<-((name[1]^2+name[2]^2+name[3]^2))^(1/3)
-    count+count+1
-    distanceList[count]=distance
-    print(distance)
-}
-print(distanceList)
-```
+- If the Bayes decision boundary in this problem is highly nonlinear, I would expect a larger K value to be better than a smaller one. This reminds me of earlier questions about flexiblity and non-linear models. Non-linear models tend to be complicated and less easy to fit simple patterns to, so I suspect that hving a larger K value would make better predictions. 
