@@ -1,9 +1,8 @@
 # In-Class Programming Activity, Day 6
 
 #Task 1
-Write a function myHistogram() that packages up the commands you wrote for drawing a histogram into a function. It should draw the histogram (setting up a frame, as appropriate) and return the bin counts.
 
-```{r}
+```{r,results="hide",include=FALSE}
 library(mosaic)
 library(mosaicData)
 nbins<-10
@@ -31,10 +30,8 @@ one_to_five <- function(hist_data) {
   bars
 }
 
-myHistogram<-function(v,nbins, color,fillLogical) {
-  
+myHistogram<-function(v,nbins, color,fill) {
   evenly_spaced<-seq(min(v), max(v), length = nbins + 1)
-
   bin_counts<-table(cut(v, breaks=evenly_spaced))
 
   xL<-evenly_spaced[1:(length(evenly_spaced)-1)]
@@ -42,58 +39,98 @@ myHistogram<-function(v,nbins, color,fillLogical) {
   count<-as.numeric(bin_counts)
   hist_basics<-data.frame(xL,xR,count)
   
-  plot(My_bars,type="n")
-  lines(My_bars)
-  polygon(My_bars,col=color, fillOddEven=fillLogical)
+  x <- seq(min(v),max(v),length=1000)
+  normal <- dnorm(x,mean(v),sd(v))
+
+  plot(x=hist_basics$count,type="n")
+  lines(hist_basics)
+  polygon(hist_basics,col="red", fillOddEven=fill)
+
+  par(new=TRUE)
+  plot(x,normal)
   
+  return(invisible(bin_counts))
+
 }
+```
+
+Task1 test
+```{r}
+myHistogram(v=Galton$height,nbins=10,color="green",fill=TRUE)
+```
+
+# Task 2
+
+```{r}
+datax <- c(runif(10, 1, 2), runif(20, 4,6))
+datav <- rnorm(10, mean=100, sd=1)
+bw<-(diff(range(datax))/sqrt(length(datax)))
+
+kernel<-function(x,y) dnorm(x,mean=y,sd=bw)
+
+gridx <- seq(0,10, length = 200) 
+
+M <- outer(gridx, datax, FUN = kernel)
+dens <- rowSums(M)
+
+```
+
+
+#Task 2 different dataset
+```{r}
+datax <- c(runif(10, 1, 2), runif(20, 4,6))
+v <- rnorm(100, mean=100, sd=1)
+
+bw<-(diff(range(datax))/sqrt(length(datax)))
+
+kernel<-function(x,y) dnorm(x,mean=y,sd=bw)
+ 
+gridx <- seq(0,10, length = 200) 
+gridV<-seq(95,105,length=50)
+
+M <- outer(gridx, datax, FUN = kernel)
+N<- outer(gridV,v,FUN=kernel)
+
+dens <- rowSums(M)
+
+densN<-rowSums(N)
+plot(gridV,densN)
+
+plot(gridx, dens)
+
 ```
 
 
 
-In addition, your program should draw a normal (a.k.a. gaussian) density in red over the histogram. The function to calculate density values is dnorm(). You’ll need to give it the mean and standard deviation of the data being binned, which you can calculate directly from those data.
+#Task 3
 
-Density estimation
-Task 2
-Work throught the following steps to generate a density plot.
 
-You’ve got a set of numbers v. You want to plot the density of v.
+```{r}
+plotdensity<-function(v,xlim=NULL){
+  bw<-function(v){(diff(range(v))/sqrt(length(v)))}
+  kernel<-function(x,y){dnorm(x,mean=y,sd=bw(x))}
+  
+  #Create grid
+  start<-min(v)-bw(v)
+  end<-max(v)+bw(v)
+#  if(xlim.isNull){
+#    xlim<-length(v)
+#  }
+  gridV<-seq(start,end,length=length(v))
 
-v <- rnorm(10, mean=100, sd=1)
-Pick a kernel wide enough to span the gaps between most points. Call the width the bandwidth (bw). A good starting value is the range divided by the square root of the number of values. Then create a function called kernel() that is a smooth density centered on any specified value x
+  M<-outer(gridV,v,FUN=kernel)
+  dens<-rowSums(M)
+  dframe<-data.frame(gridV,dens)
+  plot(gridV,dens)
+  return(invisible(dframe))
 
-Create a set of values x at which to evaluate the density. This should extend several bandwidths to either side of the range of v.
-
-Now, for each of the values in v, for each of the values in x, calculate the value of your kernel() function.
-
-Dvals <- outer(v, x, FUN = kernel)
-The result will be a matrix with length(v) rows and length(x) columns.
-
-To convert this to a density, density, calculate the column sums of the matrix and divide by length(v). (See colSums().) You can check your result by confirming that the sum of dens divided by the interval between successive values of x gives 1.
-
-Produce a data frame with components x and density.
-
-You can plot that data frame to see the density estimate.
-
-Task 3
-Package your commands into a function, plotdensity() that takes v as an argument and produces a nice density plot. Allow the user to override xlim by including it as an argument with a default value of NULL.
-
-The function should return the data frame from step (5) above with x and density. Since it’s a graphics function, some people will want to avoid having to look at the return value; they will be interested just in the graphical side effect. You can use invisible() in place of return() to accomplish this.
-
-Above and beyond
-One of the nice features of R is the ability to use variables as arguments to functions without quoting them. For instance:
-
-plot(y ~ x, data=MyData)
-You can arrange your plotdensity() function to work this way. Here’s a template without the details of drawing the density plot.
-
-plotdensity <- function(v, data=parent.frame(), ...) {
-  v <- substitute(v) # a version of v that won't be evaluated until asked
-  vname <- as.character(v)
-  vvals <- eval(v, envir = data)
-  # Your statements go here. 
-  # Use vvals as the data and vname as the label for the x-axis
 }
+```
 
+Testing Task 3
+```{r}
+plotdensity(datax)
+```
 
 ## Test statements
 
