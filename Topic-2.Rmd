@@ -1,2 +1,346 @@
 # Topic 2 Exercises: Linear Regression
 
+# Mira Ensley-Field
+
+# Computing
+# 3.6 Linear Regression Lab
+
+3.6.1 Libraries
+
+
+```{r}
+library(MASS)
+library(ISLR)
+```
+
+3.6.2 Simple Linear Regression
+```{r}
+names(Boston)
+lm.fit=lm(medv~lstat,data=Boston)
+summary(lm.fit)
+coef(lm.fit)
+confint(lm.fit)
+predict(lm.fit,data.frame(lstat=(c(5,10,15))), interval="confidence")
+```
+
+3.6.2 Simple Linear Regression: Graphs
+```{r}
+plot(lstat~medv,data=Boston, col="red")
+abline(lm.fit,lwd=3,col="blue")
+```
+
+3.6.2 Simple Linear Regression: Diagnostic plots
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit)
+```
+
+3.6.2 Simple Linear Regression: More diagnostic plots, show some evidence of non-linearity  
+```{r}
+par(mfrow=c(2,2))
+plot(predict(lm.fit),residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+
+```
+
+3.6.2 Simple Linear Regression: Leverage statistics --which observation has biggest impact
+```{r}
+plot(hatvalues(lm.fit))
+which.max(hatvalues(lm.fit))
+```
+
+
+3.6.3 Multiple Linear Regression
+
+2 variables
+```{r}
+lm.fit2=lm(medv~lstat+age,data=Boston)
+summary(lm.fit2)
+```
+
+all 13 variables
+```{r}
+lm.fit3=lm(medv~.,data=Boston)
+summary(lm.fit3)
+```
+
+R2 and RSE
+```{r}
+summary(lm.fit3)$r.sq
+summary(lm.fit3)$r.sigma
+
+```
+
+variance inflation factors
+```{r}
+library(car)
+vif(lm.fit3)
+
+```
+
+excluding age variable
+```{r}
+lm.fit4=lm(medv~.-age,data=Boston)
+summary(lm.fit4)
+
+```
+
+3.6.4 Interaction Terms
+```{r}
+summary(lm(medv~lstat*age,data=Boston))
+
+```
+
+3.6.5 Nonlinear Transformations of the PRedictors
+```{r}
+lm.fit5=lm(medv~lstat+I(lstat^2),data=Boston)
+summary(lm.fit5)
+```
+
+anova comparing quadratic to linear fit
+```{r}
+lm.fit6=lm(medv~lstat,data=Boston)
+anova(lm.fit,lm.fit5)
+
+```
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit5)
+```
+
+Cubic and higher order fits
+```{r}
+lm.fit6=lm(medv~poly(lstat,5),data=Boston)
+summary(lm.fit6)
+
+```
+
+Log Transformation
+```{r}
+summary(lm(medv~log(rm),data=Boston))
+```
+
+3.6.6 Qualitative Problems
+
+```{r}
+#names(Carseats)
+#lm.fit=lm(Sales~. , data=Carseats)
+lm.fit2=lm(Sales~. + Income:Advertising + Price:Age,data=Carseats)
+#summary(lm.fit)
+summary(lm.fit2)
+#contrasts(Carseats$Shelveloc)
+```
+
+3.6.7 Writing Functions
+```{r}
+LoadLibraries=function(){
+  library(ISLR)
+  library(MASS)
+  print("The libraries have been loaded.")
+}
+
+```
+
+#3.7.13
+
+13.) In this exercise you will create some simulated data and will fit simple
+linear regression models to it. Make sure to use set.seed(1) prior to
+starting part (a) to ensure consistent results.
+
+a,b,c)
+```{r,eval=FALSE}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=.25)
+y<-(-1+.5*x+eps)
+```
+
+What is the length of the vector y? What are the values of β0
+and β1 in this linear model?
+
+- The length fof vector 7 is 100
+
+- B0 is -1
+
+- B1 is .5
+
+d)
+```{r}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=.25)
+y<-(-1+.5*x+eps)
+plot(x~y)
+```
+
+
+- the above plot appears to be a fairly linear relationship with some noise and variation in the data that appears to be evenly distributed (ie not systematic)
+
+e)
+```{r}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=.25)
+y<-(-1+.5*x+eps)
+mod_e<-lm(y~x)
+summary(mod_e)
+
+```
+- Using the least squares linear model, I got the predicted model y = -1.00942 + .49973(x) which is very close to the true simulated model
+
+f.)
+```{r}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=.25)
+y<-(-1+.5*x+eps)
+plot(y~x)
+abline(-1.00942, .49973, col="red")
+abline(-1,.5,col="blue")
+
+legend('topright', c("Least Squares","Population Regression"), lty=c(1,1), lwd=c(2.5,2.5),col=c("red","blue")) 
+
+```
+- In the simulation I created, the least squares approach finds B0 to be -1.00942 (actual is -1) which is very close and it finds B1 to be  .49973(actual is .5) which is also very close
+
+
+g.)
+```{r}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=.25)
+y<-(-1+.5*x+eps)
+mod_g<-lm(y~x+I(x^2))
+summary(mod_g)
+
+```
+- You could perhaps argue that the model is improved because the R^2 value went up a tiny bit, but a reasonable statistician would say that the model is not better. There is no significance on the added term, the reason the R^2 went up isn't becuse it is a useful predictive term, but just adding any type of additional parameters will make the R^2 go up, even if they are junk.
+
+h.) Less noise
+```{r}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=.05)
+y<-(-1+.5*x+eps)
+mod_h<-lm(y~x)
+mod_h2<-lm(y~x+I(x^2))
+summary(mod_h)
+summary(mod_h2)
+
+```
+- when I decrease the amount of noise, the y~x model gets an intercept (B0) of -1.001885 and a slope (B1) of 0.499947 and an R^2 of .9888
+- the y~x+x^2 model gets an intercept (B0) of -0.997164 and a slope (B1) of 0.500858 for the x term and a slope of -0.005946 for the x^2 term and an R^2 of 0.989
+- the second model has a higher R^2 but is farther away from the 'true' model
+
+i) more noise
+```{r}
+set.seed(1)
+x<-rnorm(n=100,mean=0,sd=1)
+eps<-rnorm(n=100,mean=0,sd=1)
+y<-(-1+.5*x+eps)
+mod_i<-lm(y~x)
+mod_i2<-lm(y~x+I(x^2))
+summary(mod_i)
+summary(mod_i2)
+
+```
+- when I increase the amount of noise, the y~x model gets an intercept (B0) of 1.03769     and a slope (B1) of 0.49894 and an R^2 of 0.1796
+- the y~x+x^2 model gets an intercept (B0) of -0.94328 and a slope (B1) of 0.51716 for the x term and a slope of -0.11892 for the x^2 term and an R^2 of 0.1959
+- the second model has a higher R^2 but is farther away from the 'true' model
+
+j) 95% Confidence intervals
+- Original data set:
+  +           2.5 %     97.5 %
+  + B0: -1.0575402   -0.9613061
+  + B1: 0.4462897    0.5531801
+  
+- Less noise:
+  +           2.5 %     97.5 %
+  + B0: -1.0115080   -0.9922612
+  + B1:  0.4892579   0.5106360
+  
+- More noise: 
+  +           2.5 %     97.5 %
+  + B0: -1.2301607 -0.8452245
+  + B1:0.2851588  0.7127204
+
+- The biggest confidence intervals (ie most uncertainty) unsurprisingly come from the model that had the 'noisiest' data set, while the smallest and tighest confidence intervals came from the data set with the least noise. The original data set has intermediate confidence compared to the other two.
+
+# Theory
+
+On p. 66 the authors state, “This is clearly not true in Fig. 3.1” Explain why.
+
+- In figure 3.1 there is a pretty visually obvious trend that the data response (sales) is becoming more spread out as TV advertising increases. So it is clear that there is some type of relationship between the amount error (Ei) and the common variance. Usually, models assume that the error (epsilon)  is independent of the the explanatory variable and other model terms, but here it is clearly not true.
+
+On p. 77 the authors state, “In this case we cannot even fit the multiple regression models using least squares ….” Explain why.
+
+- The authors are talking about a scenario in which p>n , which means that we we have more predictors than observations. In such a case, using a multiple linear regression model would lead to a 'perfect' fit because using the least squares criterion would essentially allow the model to perfectly fit itself to the data because it is allowed to use more predictor vectors than cases it has to fit them onto. A different approach than a regression model would be needed for this scenario
+
+
+# ISL 3.7.3 and 3.7.4.
+
+#3.7.3
+
+Suppose we have a data set with five predictors, X1 = GPA, X2 = IQ,
+X3 = Gender (1 for Female and 0 for Male), X4 = Interaction between
+GPA and IQ, and X5 = Interaction between GPA and Gender. The
+response is starting salary after graduation (in thousands of dollars).
+Suppose we use least squares to fit the model, and get βˆ0 = 50, βˆ1 =
+20, βˆ2 = 0.07, βˆ3 = 35, βˆ4 = 0.01, βˆ5 = −10.
+
+
+(a) Which answer is correct, and why?
+iii
+*************
+iii. For a fixed value of IQ and GPA, males earn more on average
+than females provided that the GPA is high enough.
+
+- being female helps pay (+35) but the gender and GPA itneraction term favors males when GPA is high (-10) so for an indivudal with a 4.0 GPA, they wouold make more being male
+
+*************
+(b) Predict the salary of a female with IQ of 110 and a GPA of 4.0.
+```{r}
+print(50+20*4+110*.07+35+.01*4*110-10*4)
+```
+
+
+(c) True or false: Since the coefficient for the GPA/IQ interaction
+term is very small, there is very little evidence of an interaction
+effect. Justify your answer.
+
+- False. We shoud look the p value for that coefficient, not the size of relationship of the coefficient. We can change the size of the relationship (ie .01) simply by changing the units, so that clearly isn't reliable. It could be that there is a signifcant relationship and that it is also a very small relationship.There likewise may be benefit to trying a model that removed some other terms to see if that had any effect on the interaction.
+
+#3.7.4
+
+4. I collect a set of data (n = 100 observations) containing a single
+predictor and a quantitative response. I then fit a linear regression
+model to the data, as well as a separate cubic regression, i.e. Y =
+β0 + β1X + β2X2 + β3X3 + e.
+
+(a) Suppose that the true relationship between X and Y is linear,
+i.e. Y = β0 + β1X + . Consider the training residual sum of
+squares (RSS) for the linear regression, and also the training
+RSS for the cubic regression. Would we expect one to be lower
+than the other, would we expect them to be the same, or is there
+not enough information to tell? Justify your answer.
+
+- If the true relationship is lower, than even though the linear model is the 'true form' adding in a cubic as opposed to linear regression cannot make the training RSS go down. This is similar to how adding extra parameters, even if they are just 'junk parameters' won't make a models R2 go down.
+
+
+(b) Answer (a) using test rather than training RSS.
+
+- I would expect the test RSS for the linear model to be lower, because the linear model is closer to the 'Truth' than the cubic model. Unlike with training data, adding in more paramters or changing from linear to cubic doesn't automatically make it better--now you are penalized for adding junk.
+
+(c) Suppose that the true relationship between X and Y is not linear,
+but we don’t know how far it is from linear. Consider the training
+RSS for the linear regression, and also the training RSS for the
+cubic regression. Would we expect one to be lower than the
+other, would we expect them to be the same, or is there not
+enough information to tell? Justify your answer.
+
+- If we  know the true relationship isn't linear, but don't know how far off it is, then we would still expect the RSS on the cubic model to be lower. Again, changing from cubic to linear won't hurt the training model's RSS, it can only help.
+
+(d) Answer (c) using test rather than training RSS
+- Since we don't know the 'true' form, I don't think we have enough information to know whether the test RSS will be lower for linear or cubic. If the true form is actually cubic, of even some type of 4th degree or above, I would expect cubic to be better. But it could be quadratic, in which case it is difficult to know whether the linear or cubic would be a better model.
