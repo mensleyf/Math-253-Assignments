@@ -8,6 +8,7 @@ library(mosaicData)
 nbins<-10
 ```
 
+#Task 1: myHistogram and Normal curve
 ```{r}
 
 make_one_bar <- function(point) {
@@ -31,6 +32,7 @@ one_to_five <- function(hist_data) {
 }
 
 myHistogram<-function(v,nbins, color,fill) {
+  #Histogram
   evenly_spaced<-seq(min(v), max(v), length = nbins + 1)
   bin_counts<-table(cut(v, breaks=evenly_spaced))
 
@@ -38,14 +40,18 @@ myHistogram<-function(v,nbins, color,fill) {
   xR<-evenly_spaced[2:length(evenly_spaced)]
   count<-as.numeric(bin_counts)
   hist_basics<-data.frame(xL,xR,count)
+
+  My_bars<-(one_to_five(hist_basics))
+  plot(My_bars,type="n")
+  lines(My_bars)
+  polygon(My_bars,col=color, fillOddEven =fill)
   
+  
+  # Normal Curve
   x <- seq(min(v),max(v),length=1000)
   normal <- dnorm(x,mean(v),sd(v))
 
-  plot(x=hist_basics$count,type="n")
-  lines(hist_basics)
-  polygon(hist_basics,col="red", fillOddEven=fill)
-
+  #Together
   par(new=TRUE)
   plot(x,normal)
   
