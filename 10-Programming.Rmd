@@ -1,8 +1,81 @@
 # In-Class Programming Activity, Day 10
 
+
+# Mira Ensley-Field
 Your work goes here ...
+```{r,hide=TRUE}
+library(ISLR)
+library(mosaic)
+library(mosaicData)
+```
+
+logistic function
+```{r}
+logistic<-function(x) {
+ return(exp(x)/(1+exp(x)) )
+}
+```
+
+linear combinations
+```{r,hide=TRUE}
+linear_combine<-function(data,coefs) {
+
+ result<-0
+ for (nm in names(coefs)) {
+   
+   if (nm=="intercept"){
+     result<-result+coefs[[nm]]
+   } else {
+     if (! nm %in% names(data)) {
+       stop("nm not in data")
+     }
+     result <-result + coefs[[nm]] * data[[nm]]
+   }
+ }
+ return(result)
+ }
+```
 
 
+test linear combine
+```{r,hide=TRUE}
+linear_combine(data = Default, 
+               coefs = c(intercept = 3, balance = 0.00001, income = -0.0002))
+
+```
+
+#Probabilitis
+
+logistic
+```{r}
+LL_logistic<-function(data,coefs,outcome) {
+  v <- linear_combine(data,coefs)
+  p1<-logistic(v)
+  likelihood <- ifelse(outcome, p1, 1-p1)
+  
+  return(sum(log(likelihood)))
+}
+
+```
+
+test
+```{r}
+LL_logistic(data=Default, 
+            coefs = c(intercept = 1, income = -0.0001), 
+            outcome = Default$default == "Yes")
+
+```
+
+optimize
+```{r}
+best<-optim(par=c(intercept=3,income=-.002),
+            fn=LL_logistic, 
+            control= list(fnscale=-1),
+            data = Default, outcome = Default$default == "Yes")
+
+glm(default=="Yes"~income,data=Default,family="binomial")
+
+```
 
 ## Test statements
 
