@@ -112,16 +112,15 @@ plot(gridx, dens)
 
 
 ```{r}
-plotdensity<-function(v,xlim=NULL){
-  bw<-function(v){(diff(range(v))/sqrt(length(v)))}
-  kernel<-function(x,y){dnorm(x,mean=y,sd=bw(x))}
+plotdensity<-function(v, bw = NULL){
+  if (is.null(bw)) {
+    bw <- diff(range(v))/sqrt(length(v))
+  }
+  kernel<-function(x,y){dnorm(x,mean=y,sd=bw)}
   
-  #Create grid
-  start<-min(v)-bw(v)
-  end<-max(v)+bw(v)
-#  if(xlim.isNull){
-#    xlim<-length(v)
-#  }
+  start<-min(v)-bw
+  end<-max(v)+bw
+
   gridV<-seq(start,end,length=length(v))
 
   M<-outer(gridV,v,FUN=kernel)
