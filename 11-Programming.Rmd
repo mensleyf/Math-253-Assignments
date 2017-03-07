@@ -1,8 +1,69 @@
 # In-Class Programming Activity, Day 11
 
-Your work goes here ...
+# Mira
+
+# Part 1: Matrices and their inverses
+
+```{r}
+
+Sigma<-cbind(c(1,-.7),c(-.7,1))
+
+A<-solve(Sigma)
+
+Sigma_inv<-solve(Sigma)
+test_inverese<-Sigma %*% Sigma_inv
+
+test<-abs((t(A) %*% A - Sigma))
+
+A<-chol(Sigma)  #upper triangular
+transposed_A<-t(A) #lower triangular
+
+test_Sigma<-transposed_A %*% A
+
+```
+
+# Part 2 Orthogonal vectors and matrices
+
+```{r}
+x1<-rnorm(10)
+x2<-rnorm(10)
+
+x1<-cbind(x1)
+x2<-cbind(x2)
+
+X<-cbind(x1,x2)
+test<-t(X) %*% X
+cov_matrix<-((t(X) %*% X)/nrow(X))
+
+w1<-cbind(rnorm(10000))
+w2<-cbind(rnorm(10000))
+W<-cbind(w1,w2)
+
+W_cov<-(t(W) %*% W)/nrow(W)
+
+#looks diagonal because the correlation between w1 and w2, random vectors are almost always close to orthogonal
+
+```
 
 
+# Part 3: Generating correlated random vectors
+
+```{r}
+A_inv<-chol(solve(A))
+Y<-X %*% A
+cov_Y<-(t(Y) %*% Y)/nrow(Y)
+
+Y<- W %*% A
+cov_Y<-(t(Y) %*% Y)/nrow(Y)
+
+test<-Sigma - cov_Y
+
+```
+
+```{r}
+plot(Y[,1]~Y[,2],col=rgb(0,0,0,.05))
+
+```
 
 ## Test statements
 
