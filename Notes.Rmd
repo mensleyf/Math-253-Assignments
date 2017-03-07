@@ -1,0 +1,125 @@
+---
+title: "Notes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+one<- runif(1000)
+two<- rpois(1000)
+three<-one+two
+print(sd(one))
+print(sd(two))
+print(sd(three))
+print(var(one))
+print(var(two))
+print(var(three))
+print(cor(one,two))
+
+n <- 1000
+sd( rnorm(1000, sd=3) + rnorm(1000, sd=1) + rnorm(1000, sd=2) )
+```
+
+good for working with data
+```{r}
+library(lattice)
+library(ggplot2)
+```
+
+In this class we will use....
+
+points:
+
+plots the pairs are x's not x,y pairs
+```{r}
+plot(1, type = "n", xlim=c(0,100), ylim=c(-10,10))
+plot(40,-5,pch=20,col="red")
+plot(c(1,-1), c(4,4),pch=20,col="blue",cex=5)
+```
+
+```{r}
+x<-seq(0,20,length=1000)
+plot(x,df(x,1,2))
+plot(x,df(x,1,100))
+
+print(pf(2.5,1,2))
+print(pf(2.5,1,100))
+
+print(qf(.95,1,2))
+print(qf(.95,1,100))
+
+```
+
+lines (connected line segments)
+```{r}
+
+plot(1, type = "n", xlim=c(0,100), ylim=c(-10,10))
+lines(c(1,-1), c(4,4),pch=20,col="red")
+lines(c(0,100), c(-10,8),pch=20,col="green",lwd=5)
+```
+
+
+text
+```{r}
+plot(1, type = "n", xlim=c(0,100), ylim=c(-10,10))
+
+text(40,5, "Hello")
+
+```
+
+polygon
+```{r}
+plot(1, type = "n", xlim=c(0,100), ylim=c(-10,10))
+polygon(c(0,80,50), c(-10,-3,7), col="tomato")
+
+
+```
+
+
+```{r}
+function_of_danny<-function(word) {
+  word^2
+}
+
+print(function_of_danny(1:5))
+
+body(function_of_danny)<-expression(sqrt(word))
+print(function_of_danny(1:5))
+```
+LDA, QDA
+
+```{r}
+library(DataComputing)
+
+```
+
+```{r}
+X<-rnorm(1000,mean=5,sd=5)
+y<-rnorm(1000, mean=-10,sd=15)
+#plot.default(
+
+x<-cbind(rnorm(1000),rnorm(1000))
+plot(X[,2 ],X[,2])
+A<-cbind(c(3,0),c(-2,1.8))
+
+xprime<-X %*% A
+
+sd(xprime[,2])^2
+
+var(xprime)
+chol(var(xprime))
+```
+
+
+```{r}
+lda(default~balance+income,data=Default)
+
+```
+
+
+
+Scalar,addition,
+```{r}

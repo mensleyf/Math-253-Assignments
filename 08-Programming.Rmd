@@ -1,8 +1,69 @@
 # In-Class Programming Activity, Day 8
 
-Your work goes here ...
+# Mira
+
+#Task 1 — Fitting a line with likelihood
 
 
+```{r}
+x<-runif(100,20,70)
+y<-5+3*x + 2*rnorm(100)
+My_data<-data.frame(x,y)
+
+plot(My_data)
+
+LL_line<-function(params) {
+  m<-params[1]
+  b<-params[2]
+  sigma<-params[3]
+  sum(log(dnorm(y - (m * x + b), sd = sigma)))
+}
+
+testA<-LL_line(c(3,5,2))
+testB<-LL_line(c(4,1,10))
+
+starting_params<-c(4,1,10)
+
+best<-optim(starting_params,LL_line,control=list(fnscale=-1))
+
+print(best)
+```
+
+optim is a brute force approach, which is needed when the error isn't normally distrubted or changes with xx
+
+#Task 2 Taxicab fare structure
+-trying to model fare amount which depends on trip distance in reliable way
+-depends  on waiting time, which lets assume has exponential distribution
+
+  fare amount = trip distance * per mile + base fare + error
+  error(waiting time)=fare amount-trip distance*permile - base fare
+
+```{r}
+load(url("http://tiny.cc/dcf/Taxi_trips.rda"))
+
+starting<-c(base_fare = 2.00, per_mile = 4.00, params = 1/3)
+
+taxi_likelihood<-function(vector){
+  base_fare<-vector[1]
+  per_mile<-vector[2]
+  params<-vector[3]
+  sum(log(rexp(Taxi_trips$fare_amount-base_fare-per_mile*Taxi_trips$trip_distance,params)))
+
+
+
+}
+
+best<-optim(par=starting,fn=taxi_likelihood,control=list(fnscale=-1)) #producing a lot of NAs
+plot(Taxi_trips$trip_distance, Taxi_trips$fare_amount)
+abline(best$base_fare,best$per_mile,col="red")
+```
+
+```{r}
+plot(Taxi_trips$trip_distance, Taxi_trips$fare_amount)
+abline(2.0329219, 4.7489711,col="red")
+abline(2.3029117,3.6084402,col="blue")
+abline(2.4019141, 3.8097856,col="green")
+```
 
 ## Test statements
 

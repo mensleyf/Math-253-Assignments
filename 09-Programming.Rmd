@@ -1,6 +1,128 @@
 # In-Class Programming Activity, Day 9
 
-Your work goes here ...
+# Mira Ensley-Field
+
+Royal flush: <0.001% five cards of the same suit with ranks 10, ack, queen, king, ace. This could also be called a royal straight flush, but a royal flush is by necessity a straight flush.
+
+Straight flush (not including royal flush): <0.002% five cards of the same suit in consecutive order
+
+
+Flush (excluding royal flush and straight flush): 0.20%
+five cards of the same suit
+
+Straight (excluding royal flush and straight flush): 0.39%
+five consecutively numbered cards
+
+
+Deck, suit, and rank
+```{r}
+poker_deck <- c(outer((10 * 2:14), 1:4, '+'))
+#suit: 1, 2, 3, 4
+suits<-function(digits) {
+  return(digits %% 10)
+}
+
+ranks<-function(digits) {
+  return (digits %/% 10)
+}
+```
+
+is_a functions
+```{r}
+#five cards of the same suit with ranks 10, ack, queen, king, ace.
+is_royal_flush<-function(hand) {
+    counts <- table(ranks(hand)) 
+    counts1<- table(suits(hand))
+    table(hand)==table(order(hand)) && min(counts)==10 && length(counts1)==1
+}
+
+#five cards of the same suit in consecutive order
+is_straight_flush<-function(hand) {
+  countSuit<-table(suits(hand))
+  ranks(hand)==sort(ranks(hand),decreasing=FALSE) && length(countSuit)==1
+}
+
+is_four_of_a_kind<-function(hand){
+  counts<-table(ranks(hand))
+  max(counts)==4 && min(counts) == 1
+  }
+
+#Three of a kind and the other two cards forming a pair
+is_full_house<-function(hand){
+  counts <- table(ranks(hand))
+  min(counts) == 2 && max(counts) == 3
+}
+
+#5 cards of same suit, not royal flush
+is_flush<-function(hand) {
+  counts <- table(suits(hand))
+  length(suits)==1
+}
+
+#5 consectuively numbered cards (but not all of same suit)
+is_straight<-function(hand) {
+  countSuit<-table(suits(hand))
+  ranks(hand)==sort(ranks(hand),decreasing=FALSE) && length(countSuit)>=1
+}
+
+
+is_three_of_a_kind<-function(hand){
+  counts<-table(ranks(hand))
+  max(counts)==3 && length(counts)==3
+}
+
+is_two_pair<-function(hand) {
+    counts<-table(ranks(hand))
+    max(counts)==2 && min(counts)==1 && length((counts))==3
+}
+
+is_pair<-function(hand) {
+    counts<-table(ranks(hand))
+    max(counts)==2 && min(counts)==1 && length((counts))==4
+}
+```
+
+Testing is_a functions
+```{r}
+
+test_hand_2<-sample(poker_deck,5)
+
+test_hand_1<-c(132, 142,  23,  33,  43)
+testC<-c(132, 133,  134,  24,  41)
+testD<-c(132, 133,  23,  24,  41)
+testE<-c(132, 133,  23,  34,  41)
+straight<-c(21, 31, 42, 52, 62)
+sflush<-c(21, 31, 42, 52, 62)
+sflushy<-c(21, 31, 41, 51, 61)
+
+```
+
+Estimating probabilities
+
+Write a function before_draw() that draws five random cards from the deck and calculates the best hand that can be assembled from those cards. It will look like:
+
+```{r}
+
+before_draw <- function(poker_deck) {
+  five_cards <- sample(poker_deck, 5,replace=TRUE)
+  ordered_five_cards=sort(five_cards,descending=FALSE)
+if(is_straight_flush(five_cards)) {return ("straight flush")}
+if(is_four_of_a_kind(five_cards)) {return (" four of a kind")}
+if(is_full_house(five_cards)) {return ("full house")}
+if(is_flush(five_cards)) {return ("flush")}
+if(is_straight(five_cards)) {return ("straight")}
+if(is_three_of_a_kind(five_cards)) {return ("three of a kind")}
+if(is_two_pair(five_cards)) {return ("two pair")}
+if(is_pair(five_cards)) {return ("pair")}
+
+}
+
+```
+
+
+```{r}
+table(sapply(1:10000, FUN=before_draw))
+```
 
 
 
