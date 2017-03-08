@@ -19,8 +19,8 @@ y1<-c(0,0,100,100)
 x2<-c(0,100,100,0,0)
 y2<-c(0,0,100,100,0)
 
-lines(x1, y1,pch=10,col="blue",cex=2)
-lines(x2, y2,pch=10,col="red",cex=2)
+lines(x1, y1,pch=60,col="blue",cex=60)
+#lines(x2, y2,pch=10,col="red",cex=2)
 
 ```
 
