@@ -2,9 +2,11 @@
 
 # Mira Ensley-Field
 
+# Likelihood Calculations
 ```{r}
 vals<-rexp(n=10,rate=1/100)
 test200<-sum(log(dexp(x=vals,rate=1/200)))
+
 
 LL_exp<-function(rate){ 
   sum(log(dexp(x=vals,rate=rate)))
@@ -13,7 +15,7 @@ LL_exp<-function(rate){
 
 rates<-seq(1/200,1/50,length=100)
 results<-sapply(rates,LL_exp)
-plot(results~1/rates)
+plot(results~(1/rates))
 
 optimize(f=LL_exp,lower=1/200,upper=1/50,maximum=TRUE)
 
