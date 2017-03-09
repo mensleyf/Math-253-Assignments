@@ -164,7 +164,7 @@ is_full_house&lt;-function(hand){
 #5 cards of same suit, not royal flush
 is_flush&lt;-function(hand) {
   counts &lt;- table(suits(hand))
-  length(suits)==1
+  length(counts)==1
 }
 
 #5 consectuively numbered cards (but not all of same suit)
@@ -212,7 +212,14 @@ sflushy&lt;-c(21, 31, 41, 51, 61)</code></pre>
   if (is_pair(five_cards)) return(&quot;pair&quot;)
   else return(&quot;Nada&quot;)
 }</code></pre>
-<pre class="r"><code>table1&lt;-table(sapply(1:10000, FUN=before_draw))</code></pre>
+<p>Does this match what wikipedia thinks it should be?</p>
+<pre class="r"><code>table1&lt;-table(sapply(1:10000, FUN=before_draw))
+print(table1)</code></pre>
+<pre><code>## 
+##   boring flush four of a kind    full  house           Nada           pair 
+##             17              2             18           4174           3095 
+##       straight straight flush       two pair 
+##           2355              3            336</code></pre>
 <div id="test-statements" class="section level2">
 <h2>Test statements</h2>
 <pre class="r"><code>scoreActivity::score253(9)</code></pre>
