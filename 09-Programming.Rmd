@@ -15,7 +15,7 @@ ranks<-function(digits) {
 }
 ```
 
-is_a functions
+# is_a functions
 ```{r}
 #five cards of the same suit with ranks 10, ack, queen, king, ace.
 is_royal_flush<-function(hand) {
@@ -70,7 +70,7 @@ is_pair<-function(hand) {
 }
 ```
 
-Testing is_a functions
+# Testing is_a functions
 ```{r}
 
 test_hand_2<-sample(poker_deck,5)
@@ -85,7 +85,7 @@ sflushy<-c(21, 31, 41, 51, 61)
 
 ```
 
-Estimating probabilities
+# Estimating probabilities
 
 Write a function before_draw() that draws five random cards from the deck and calculates the best hand that can be assembled from those cards.
 

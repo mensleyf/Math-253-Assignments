@@ -1,7 +1,35 @@
 # In-Class Programming Activity, Day 13
 
-Your work goes here ...
+Mira
 
+Problem: my error is really high...each kfold is >1000 ?
+```{r}
+k_fold1 <- function(formula, method = lm, data = mtcars, predfun = predict, k = 10) {
+  # do the calculations, 
+  
+  sets<-(1:nrow(mtcars) %% k) + 1 #random numbers 1-51
+  
+  ## accumulator will be updated as you go through the loop
+  mspe <- numeric(k) #accumulator with 10 slots
+
+  for (i in 1:k) {     
+    Test_data <- data[sets == i, ]
+    Training_data <- data[sets != i,]
+    
+    mod <- lm(mpg ~ hp + wt + am,data=Training_data)
+    pred_vals <- predict(mod, newdata = Test_data)
+    
+    mspe[i]<-mean((Test_data$mpg - pred_vals)^2 )
+    print(mspe[i])
+}
+error_estimate <-mean(mspe)
+  
+  # producing an estimate of error
+  return(error_estimate)
+}
+```
+
+## [1] 5.634096
 
 
 ## Test statements
