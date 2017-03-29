@@ -1,2 +1,285 @@
 # Topic 4 Exercises: Classification
 
+# Mira Ensley-Field
+
+```{r,include=FALSE}
+library(mosaicData)
+library(mosaic)
+library(MASS)
+library(ISLR)
+```
+
+# Programming Assignment: 4.7.11
+
+# 4.7.11 car mileage with Auto dataset
+
+a.create data frame with mpg01
+```{r}
+new_Auto<-data.frame(Auto)
+Auto$mpg01<-ifelse(Auto$mpg>median(Auto$mpg),1,0)
+```
+
+b.
+which best to predict mpg? Use scatterplots and boxplots
+
+```{r}
+all<-lm(mpg~. -name,data=Auto)
+summary(all)
+plot(mpg~.,data=Auto)
+```
+
+
+b.Based on the above plots, it appears that cylindres, displacement, horsepower, and  weight all predict mpg fairly well. 
+
+b. If I do linear models for terms (below) then I find that the best explanatory variables weight, displacement, and horsepower in that their R2 is greater than 0.6 and that they all have inverse retlationships with mpg
+
+
+```{r}
+cylinder<-lm(mpg~cylinders,data=Auto)
+summary(cylinder) #R2 = .6047
+
+displacement<-lm(mpg~displacement,data=Auto)
+summary(displacement) #R2 = .6482
+
+horsepower<-lm(mpg~horsepower,data=Auto)
+summary(horsepower) #R2 = .6059
+
+weight<-lm(mpg~weight,data=Auto)
+summary(weight) #R2 = .69
+
+acceleration<-lm(mpg~acceleration,data=Auto)
+summary(acceleration) #R2 = .1792
+
+year<-lm(mpg~year,data=Auto)
+summary(year) #R2 = .337
+
+origin<-lm(mpg~origin,data=Auto)
+summary(origin) #R2 = .3195
+
+lm_3<-lm(mpg~weight+displacement+horsepower,data=Auto)
+summary(lm_3) #shows displacement isn't very predictive
+
+lm_2<-lm(mpg~weight+horsepower,data=Auto)
+summary(lm_2) 
+
+```
+
+b.Looking at correlation...some variables are highly correlated including displacement, horsepower,cylinders,weight
+```{r}
+cor(new_Auto[,-9])
+```
+
+c.) split into training and test set
+
+```{r}
+## 50% = training, 50% = test
+size <- floor(0.5 * nrow(Auto))
+set.seed(123)
+training_rows<- sample(seq_len(nrow(Auto)), size = size)
+
+train_data <- Auto[training_rows, ] #196 rows
+test_data <- Auto[-training_rows, ]
+mpg_test_data<-test_data$mpg
+
+```
+
+```{r}
+library(MASS)
+library(ISLR)
+```
+
+d. LDA on training data, find test error rate
+
+```{r}
+lda_model <- lda(mpg01 ~ cylinders + weight + displacement + horsepower, data = train_data)
+pred_lda <- predict(lda_model, newdata = test_data)
+table(pred_lda$class, test_data$mpg01)
+mean(pred_lda$class != test_data$mpg01)
+```
+
+Using my model mpg01~cylinders + weight + displacement + horsepower and **lda analysis**, I got a test error rate of 0.1173
+
+e.) perform QDA
+```{r}
+qda_model <- qda(mpg01 ~ cylinders + weight + displacement + horsepower, data = train_data)
+pred_qda <- predict(qda_model, newdata = test_data)
+table(pred_qda$class, test_data$mpg01)
+mean(pred_qda$class != test_data$mpg01)
+```
+
+Using my model mpg01~cylinders + weight + displacement + horsepower and **qda analysis**, I got a test error rate of 0.1122 (slightly better)
+
+f.) perform logistic regression
+
+```{r}
+gl_model <- glm(mpg01 ~ cylinders + weight + displacement + horsepower, data = train_data,family=binomial)
+
+summary(gl_model)
+
+probs <- predict(gl_model, test_data, type = "response")
+pred_glm <- rep(0, length(probs))
+pred_glm[probs > 0.5] <- 1
+table(pred_glm, test_data$mpg01)
+mean(pred_glm !=test_data$mpg01)
+```
+
+Using my model mpg01~cylinders + weight + displacement + horsepower and **glm analysis**, I got a test error rate of 0.09693878 (a lot lower)
+
+
+g.) perform knn, what value of K performs best?
+knn_matrix <- data.matrix(train_data)
+knn_train_matrix <- knn_matrix[,-c(1,15,16)]
+knn_matrix2<-data.matrix(test_data)
+knn_test_matrix <- knn_matrix2[,-c(1,15,16)]
+train_above_median<-as.matrix(test_data$above_median)
+
+```{r,eval=FALSE}
+train_matrix_knn <- as.matrix(train_data$cylinders, weight, displacement, horsepower, data = train_data)
+test_matrix_knn <- as.matrix(test_data$cylinders, weight, displacement, horsepower, data=test_data)
+
+
+set.seed(1)
+pred.knn <- knn(train_matrix_knn, test_matrix_knn, train_matrix_knn[train]
+, k = 1)
+table(pred.knn, mpg01.test)
+
+```
+
+
+4.7.13 Use Boston data set, fit classification models in order to predict whether a given suburb has a crime rate above or below the median. Explore logistic regression, LDA, KNN using various subsets of predictors. Describe findings.
+
+```{r}
+Boston$above_median<-ifelse(Boston$crim>0.25651,1,0)
+
+## 50% = training, 50% = test
+size <- floor(0.5 * nrow(Boston))
+set.seed(123)
+training_rows<- sample(seq_len(nrow(Boston)), size = size)
+
+train_data <- Boston[training_rows, ] #196 rows
+test_data <- Boston[-training_rows, ]
+```
+
+
+Logistic regression
+```{r}
+glm_model <- glm(above_median ~ . - above_median - crim, data = train_data, family = binomial)
+
+probs <- predict(glm_model, test_data, type = "response")
+pred_glm <- rep(0, length(probs))
+pred_glm[probs > 0.5] <- 1
+table(pred_glm, test_data$above_median)
+
+mean(pred_glm != test_data$above_median)
+```
+using all data and logistic, my error rate is .1185
+
+LDA
+```{r}
+lda_model <- lda(above_median ~. - above_median - crim  , data = train_data)
+pred_lda <- predict(lda_model, newdata=test_data)
+table(pred_lda$class, test_data$above_median)
+mean(pred_lda$class != test_data$above_median)
+```
+using all data and LDA, my error rate is .1620553
+
+QDA
+```{r}
+qda_model <- qda(above_median ~. - above_median - crim  , data = train_data)
+pred_qda <- predict(qda_model, newdata=test_data)
+table(pred_qda$class, test_data$above_median)
+mean(pred_qda$class != test_data$above_median)
+```
+using all data and LDA, my error rate is 0.1383399
+
+KNN (currently not working...)
+```{r,eval=FALSE}
+knn_matrix <- data.matrix(train_data)
+knn_train_matrix <- knn_matrix[,-c(1,15,16)]
+knn_matrix2<-data.matrix(test_data)
+knn_test_matrix <- knn_matrix2[,-c(1,15,16)]
+train_above_median<-as.matrix(test_data$above_median)
+
+set.seed(1)
+pred_knn <- knn(knn_train_matrix,knn_test_matrix, train_above_median,  k = 1)
+
+table(pred.knn, mpg01.test)
+```
+
+
+After using all predictors available, I'm going to redo above processes only using the two predicotrs I think are best, which I decided after briefly looking at a correlation matrix
+
+```{r}
+cor(new_Auto[,-9])
+```
+
+Things that seem correlated with crim: rad = .62, tax = .58
+
+
+Logistic regression
+```{r}
+glm_model <- glm(above_median ~ tax +rad, data = train_data, family = binomial)
+
+probs <- predict(glm_model, test_data, type = "response")
+pred_glm <- rep(0, length(probs))
+pred_glm[probs > 0.5] <- 1
+table(pred_glm, test_data$above_median)
+
+mean(pred_glm != test_data$above_median)
+```
+using just two predictrs (tax and rad) and logistic regression, my error rate is 0.2411067
+
+LDA
+```{r}
+lda_model <- lda(above_median ~ tax +rad, data = train_data)
+pred_lda <- predict(lda_model, newdata=test_data)
+table(pred_lda$class, test_data$above_median)
+mean(pred_lda$class != test_data$above_median)
+```
+using just two predictrs (tax and rad) and LDA, my error rate is 0.2648221
+
+QDA
+```{r}
+qda_model <- qda(above_median ~ tax +rad, data = train_data)
+pred_qda <- predict(qda_model, newdata=test_data)
+table(pred_qda$class, test_data$above_median)
+mean(pred_qda$class != test_data$above_median)
+```
+using just two predictrs (tax and rad) and qda, my error rate is 0.2608696
+
+**findings on 4.7.13**
+I'm surprised that my test error rates are higher when I used only two terms (rad and tax) after determining they, of all the other terms, had the best predictive value. I would have thought my earlier model that included all terms would lead to overfitting and thus perform poorly on the test data. I still suspect that many of the predictors I used earlier weren't particularly useful to inlude and that my models may be better off without them.
+
+I was also interested in how consistent glm, lda, and qda performed. They were usually fairly comparable, although the logistc regression seemed to consistently outperform the others. It seems like crime can be poorly predicted using a couple main predictors, but it is better to include more variables to help explain and predict neighborhood's chances of being above the median.
+
+
+# Theory assignment: 4.7.1, 4.7.8, 4.7.9
+
+
+# 4.7.1  Proof:
+
+I did this...it's currently on a piece of paper in my notes. I can turn it in or email a picture if you want to see it.
+
+# 4.7.8: 
+- **Divide data set into test and training, try out 2 different classification procedures
+- logistic regression = error rate of 20% on training, 30% on test data
+- KNN gives average error rate of 18% (averaged over test and training data)**
+
+- Based off this information, I would prefer the logistic regression technique. First it's worth noting that the "training error rate" is a lot less important than the "test error rate," and I am most concerned with how my classification model performs on actual data, not the data it was trained with. Ideally, I would compare test error rates to determine the better classification method
+
+Having a KNN that only uses the first nearest neighbor guarantees a very good, in fact, perfect,  performance on the training data. This is because essentially the model will train itself based on the training points and their classification, and will decide that the single point that is nearest decides the classification, then when it goes through for the training model, it's basically matching each point to itself, so the training error rate on a KNN where K=1 is particularly useless--it will be 0%, but that tells us nothing about whether it is actually a good model. So if the average of the KNN training and test error rate is 18%, it means the test error rate is 36%, which is higher than the 30% of the logistic regression technique. Thereforefore, I prefer the logistic regression to the KNN with K=1
+
+# 4.7.9
+
+a.) On average what fraction of people with an odds of .37 on defaiulting their first credit card payment will in fact default
+
+.27 or 27% of people on average will default 
+
+p(x)/(1-p(x)) = .37 ;  1.37*p(x) = .37  ; p(x) = .37/1.37 = .27
+
+
+b.) Suppose that an individual has a 16% chance of defaulting on her first credit card payment, what are the odds she will default
+
+the odds are .19
+
+.16/(1-.16)= .19
