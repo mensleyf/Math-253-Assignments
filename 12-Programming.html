@@ -121,9 +121,7 @@ $(document).ready(function () {
 
 <div id="in-class-programming-activity-day-12" class="section level1">
 <h1>In-Class Programming Activity, Day 12</h1>
-</div>
-<div id="mira" class="section level1">
-<h1>Mira</h1>
+<p>Mira Ensley-Field</p>
 </div>
 <div id="testing-lda-and-qda" class="section level1">
 <h1>Testing LDA and QDA</h1>
@@ -166,7 +164,7 @@ library(MASS)</code></pre>
 <pre><code>## The following object is masked from 'package:dplyr':
 ## 
 ##     select</code></pre>
-<pre class="r"><code>n_cases&lt;-100
+<pre class="r"><code>n_cases&lt;-1000
 red_mean&lt;-c(1,0)
 green_mean&lt;-c(0,-1)
 blue_mean&lt;-c(-1,1)
@@ -181,9 +179,13 @@ Three&lt;-cbind(rnorm(n_cases,0,1),rnorm(n_cases,0,1))</code></pre>
 Green&lt;- Two %*% chol(covar_red) 
 Blue&lt;- Three %*% chol(covar_blue)
 
-Red&lt;-cbind(Red,matrix(red_mean,nrow=100))
-Green&lt;-cbind(Green,matrix(green_mean,nrow=100))
-Blue&lt;-cbind(Blue,matrix(blue_mean,nrow=100))</code></pre>
+Red&lt;-cbind(Red,matrix(red_mean,nrow=1000))
+Green&lt;-cbind(Green,matrix(green_mean,nrow=1000))
+Blue&lt;-cbind(Blue,matrix(blue_mean,nrow=1000))
+
+Red[1]&lt;-Red[1] +1
+Green[1]&lt;-Green[1]+1
+Blue[1]&lt;-Blue[1]+1</code></pre>
 <p>Creating three dataframes</p>
 <pre class="r"><code>Red&lt;-data.frame(Red[,1],Red[,2],class=&quot;red&quot;)
 names(Red)&lt;-c(&quot;x&quot;,&quot;y&quot;,&quot;class&quot;)
@@ -194,28 +196,57 @@ names(Green)&lt;-c(&quot;x&quot;,&quot;y&quot;,&quot;class&quot;)</code></pre>
 <p>Creating final 2 simulated dataframes</p>
 <pre class="r"><code>Same_sigma&lt;-rbind(Red,Green)
 Different_Sigma&lt;-rbind(Red,Blue)</code></pre>
-<p>LDA and QDA</p>
+<p>LDA and Confusion Matrix 1</p>
 <pre class="r"><code>mod_LDA_one &lt;- lda(class~x+y, data = Same_sigma)
-test_LDA_one &lt;- predict(mod_LDA_one, newdata = Same_sigma)</code></pre>
-<p>test_LDA_one: these are the bounds for what the model considers red? as low as the first #, and as high as the 2nd</p>
-<p>-0.1477778 -0.09275557 red</p>
-<pre class="r"><code>table(Same_sigma$class, test_LDA_one$class)</code></pre>
+test_LDA_one &lt;- predict(mod_LDA_one, newdata = Same_sigma)
+table(Same_sigma$class, test_LDA_one$class)</code></pre>
 <pre><code>##        
 ##         red green
-##   red    52    48
-##   green  44    56</code></pre>
+##   red   493   507
+##   green 479   521</code></pre>
+<p>QDA and Confusion MAtrix 2</p>
 <pre class="r"><code>mod_QDA_one &lt;- qda(class~x+y, data = Same_sigma)
-test_QDA_one &lt;- predict(mod_QDA_one, newdata = Same_sigma)</code></pre>
-<pre><code>   x          y class
-   </code></pre>
-<p>1 1.32151 -0.6731529 red</p>
-<p>qdda and lda are very different….</p>
-<p>Confusion Matrices</p>
-<pre class="r"><code>table(Same_sigma$class, test_LDA_one$class)</code></pre>
+test_QDA_one &lt;- predict(mod_QDA_one, newdata = Same_sigma)
+table(Same_sigma$class, test_QDA_one$class)</code></pre>
 <pre><code>##        
 ##         red green
-##   red    52    48
-##   green  44    56</code></pre>
+##   red   659   341
+##   green 613   387</code></pre>
+<p>Compare LDA and QDA 1</p>
+<pre class="r"><code>lda_test_error&lt;-mean(Same_sigma$class != test_LDA_one$class)
+qda_test_error&lt;-mean(Same_sigma$class != test_QDA_one$class)
+print(lda_test_error) </code></pre>
+<pre><code>## [1] 0.493</code></pre>
+<pre class="r"><code>print(qda_test_error) </code></pre>
+<pre><code>## [1] 0.477</code></pre>
+<p>small n: the qda has a lower test error rate (.43), though they are both relatively high (.355) big n: They are virtually the same</p>
+<p>LDA 2</p>
+<pre class="r"><code>mod_LDA_two &lt;- lda(class~x+y, data = Different_Sigma)
+test_LDA_two &lt;- predict(mod_LDA_two, newdata = Different_Sigma)
+table(Different_Sigma$class, test_LDA_two$class)</code></pre>
+<pre><code>##       
+##        red blue
+##   red  572  428
+##   blue 487  513</code></pre>
+<p>QDA 2</p>
+<pre class="r"><code>mod_QDA_two &lt;- qda(class~x+y, data = Different_Sigma)
+test_QDA_two &lt;- predict(mod_QDA_two, newdata = Different_Sigma)
+table(Different_Sigma$class, test_QDA_two$class)</code></pre>
+<pre><code>##       
+##        red blue
+##   red  969   31
+##   blue 132  868</code></pre>
+<p>Compare LDA and QDA 2</p>
+<pre class="r"><code>lda_test_error&lt;-mean(Different_Sigma$class != test_LDA_two$class)
+qda_test_error&lt;-mean(Different_Sigma$class != test_QDA_two$class)
+print(lda_test_error)  </code></pre>
+<pre><code>## [1] 0.4575</code></pre>
+<pre class="r"><code>print(qda_test_error) </code></pre>
+<pre><code>## [1] 0.0815</code></pre>
+<p>small n: The error rate on the LDA (.465) is much lower than the QDA (.06) big n: The error rate on the LDA (.481) is much lower than the QDA (.0885)</p>
+<div id="bigger-n" class="section level2">
+<h2>Bigger N</h2>
+</div>
 <div id="test-statements" class="section level2">
 <h2>Test statements</h2>
 <pre class="r"><code>scoreActivity::score253(12)</code></pre>
@@ -230,9 +261,9 @@ test_QDA_one &lt;- predict(mod_QDA_one, newdata = Same_sigma)</code></pre>
 ##     0.5)
 ## passed: all(table(Same_sigma$class) == c(n_cases, n_cases))
 ## passed: object &quot;mod_LDA_one&quot; exists
-## FAILED: object &quot;mod_QDA_two&quot; doesn't exist.
+## passed: object &quot;mod_QDA_two&quot; exists
 ## passed: object &quot;test_QDA_one&quot; exists
-## FAILED: object &quot;test_LDA_two&quot; doesn't exist.</code></pre>
+## passed: object &quot;test_LDA_two&quot; exists</code></pre>
 </div>
 </div>
 
