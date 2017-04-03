@@ -1,8 +1,7 @@
 # In-Class Programming Activity, Day 13
 
-Mira
+Mira Ensley-Field
 
-Problem: my error is really high...each kfold is >1000 ?
 ```{r}
 k_fold1 <- function(formula, method = lm, data = mtcars, predfun = predict, k = 10) {
   # do the calculations, 
@@ -13,23 +12,54 @@ k_fold1 <- function(formula, method = lm, data = mtcars, predfun = predict, k = 
   mspe <- numeric(k) #accumulator with 10 slots
 
   for (i in 1:k) {     
-    Test_data <- data[sets == i, ]
+    For_Testing <- data[sets == i, ]
     Training_data <- data[sets != i,]
     
     mod <- lm(mpg ~ hp + wt + am,data=Training_data)
-    pred_vals <- predict(mod, newdata = Test_data)
+    pred_vals <- predict(mod, newdata = For_Testing)
     
-    mspe[i]<-mean((Test_data$mpg - pred_vals)^2 )
-    print(mspe[i])
+    mspe[i]<-mean((For_Testing$mpg - pred_vals)^2 )
+   # print(mspe[i])
 }
 error_estimate <-mean(mspe)
   
   # producing an estimate of error
   return(error_estimate)
 }
+
+print(k_fold1())
 ```
 
-## [1] 5.634096
+#Generalizing kfold
+
+```{r}
+k_fold <- function(formula=lm, method = lm, data = mtcars, predfun = predict, k = 10) {
+  # do the calculations, 
+  
+  sets<-(1:nrow(mtcars) %% k) + 1 #random numbers 1-51
+  
+  ## accumulator will be updated as you go through the loop
+  mspe <- numeric(k) #accumulator with 10 slots
+
+  for (i in 1:k) {     
+    For_Testing <- data[sets == i, ]
+    Training_data <- data[sets != i,]
+    
+    mod <- method(formula,data=Training_data)
+    pred_vals <- predfun(mod, newdata = For_Testing)
+    
+    mspe[i]<-mean((For_Testing[[as.character(formula[[2]])]] - pred_vals)^2 )
+   # print(mspe[i])
+}
+error_estimate <-mean(mspe)
+  
+  # producing an estimate of error
+  return(error_estimate)
+}
+
+print(k_fold(formula = mpg ~ hp + wt + am, data=mtcars))
+```
+
 
 
 ## Test statements

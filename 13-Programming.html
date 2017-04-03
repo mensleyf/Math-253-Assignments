@@ -121,8 +121,7 @@ $(document).ready(function () {
 
 <div id="in-class-programming-activity-day-13" class="section level1">
 <h1>In-Class Programming Activity, Day 13</h1>
-<p>Mira</p>
-<p>Problem: my error is really high…each kfold is &gt;1000 ?</p>
+<p>Mira Ensley-Field</p>
 <pre class="r"><code>k_fold1 &lt;- function(formula, method = lm, data = mtcars, predfun = predict, k = 10) {
   # do the calculations, 
   
@@ -132,50 +131,68 @@ $(document).ready(function () {
   mspe &lt;- numeric(k) #accumulator with 10 slots
 
   for (i in 1:k) {     
-    Test_data &lt;- data[sets == i, ]
+    For_Testing &lt;- data[sets == i, ]
     Training_data &lt;- data[sets != i,]
     
     mod &lt;- lm(mpg ~ hp + wt + am,data=Training_data)
-    pred_vals &lt;- predict(mod, newdata = Test_data)
+    pred_vals &lt;- predict(mod, newdata = For_Testing)
     
-    mspe[i]&lt;-mean((Test_data$mpg - pred_vals)^2 )
-    print(mspe[i])
+    mspe[i]&lt;-mean((For_Testing$mpg - pred_vals)^2 )
+   # print(mspe[i])
 }
 error_estimate &lt;-mean(mspe)
   
   # producing an estimate of error
   return(error_estimate)
-}</code></pre>
-<div id="section" class="section level2">
-<h2>[1] 5.634096</h2>
+}
+
+print(k_fold1())</code></pre>
+<pre><code>## [1] 7.917305</code></pre>
 </div>
+<div id="generalizing-kfold" class="section level1">
+<h1>Generalizing kfold</h1>
+<pre class="r"><code>k_fold &lt;- function(formula=lm, method = lm, data = mtcars, predfun = predict, k = 10) {
+  # do the calculations, 
+  
+  sets&lt;-(1:nrow(mtcars) %% k) + 1 #random numbers 1-51
+  
+  ## accumulator will be updated as you go through the loop
+  mspe &lt;- numeric(k) #accumulator with 10 slots
+
+  for (i in 1:k) {     
+    For_Testing &lt;- data[sets == i, ]
+    Training_data &lt;- data[sets != i,]
+    
+    mod &lt;- method(formula,data=Training_data)
+    pred_vals &lt;- predfun(mod, newdata = For_Testing)
+    
+    mspe[i]&lt;-mean((For_Testing[[as.character(formula[[2]])]] - pred_vals)^2 )
+   # print(mspe[i])
+}
+error_estimate &lt;-mean(mspe)
+  
+  # producing an estimate of error
+  return(error_estimate)
+}
+
+print(k_fold(formula = mpg ~ hp + wt + am, data=mtcars))</code></pre>
+<pre><code>## [1] 7.917305</code></pre>
 <div id="test-statements" class="section level2">
 <h2>Test statements</h2>
 <pre class="r"><code>scoreActivity::score253(13)</code></pre>
 <pre><code>## --------
 ## Running test statements for day  13</code></pre>
 <pre><code>## Loading required package: lazyeval</code></pre>
-<pre><code>## [1] 13.2836
-## [1] 8.416752
-## [1] 7.886428
-## [1] 8.036451
-## [1] 0.845097
-## [1] 3.9938
-## [1] 1.872481
-## [1] 12.75764
-## [1] 19.66544
-## [1] 2.415355</code></pre>
-<pre><code>## Warning in results[k] &lt;- paste(&quot;ERROR when running &quot;, deparse(ldots[k][[1]]
-## $expr)): number of items to replace is not a multiple of replacement length</code></pre>
 <pre><code>## passed: object &quot;k_fold1&quot; exists
-## FAILED: object &quot;k_fold&quot; doesn't exist.
+## passed: object &quot;k_fold&quot; exists
 ## passed: &quot;method&quot; %in% names(formals(k_fold1))
 ## passed: &quot;data&quot; %in% names(formals(k_fold1))
 ## passed: k_fold1()
-## FAILED: &quot;For_Testing&quot; %in% all.names(body(k_fold1))
-## ERROR when running  check(TRUE, &quot;predfun&quot; %in% all.names(body(k_fold)))
-## ERROR when running  check(TRUE, &quot;method&quot; %in% all.names(body(k_fold)))
-## ERROR when running  check(about(24, pm = 4), k_fold(wage ~ age + sex, data = mosaicData::CPS85,</code></pre>
+## passed: &quot;For_Testing&quot; %in% all.names(body(k_fold1))
+## passed: &quot;predfun&quot; %in% all.names(body(k_fold))
+## passed: &quot;method&quot; %in% all.names(body(k_fold))
+## passed: k_fold(wage ~ age + sex, data = mosaicData::CPS85, k = 10, predfun = predict, 
+##     method = lm)</code></pre>
 </div>
 </div>
 
