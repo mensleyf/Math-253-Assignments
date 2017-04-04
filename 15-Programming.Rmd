@@ -1,10 +1,101 @@
 # In-Class Programming Activity, Day 15
 
-Your work goes here ...
+# Mira Ensley-Field
+
+The file is available at
+```{r}
+load("mona.rda")
+library(mosaic)
+library(glmnet)
+library(pls)
+```
+
+making matrix (X) to represent the Mona Lisa
+x_rand = random, normally distributed noise, same size as X
+```{r}
+X <- t(mona) - mean(mona[])
+
+X_rand<-matrix(rnorm(191,0,1),250,191)
+
+X_corr<-(X_rand %*% chol(var(X))) 
+```
+
+Sparse Beta
+```{r}
+helper<-c(2,5,-3,-4)
+zero<-rep(0,191-16)
+new<-c(helper,helper,helper,helper,zero)
+beta<-sample(new,size=191,replace=FALSE)
+
+Y_pure<-X %*% beta
+Y_real<-Y_pure + rnorm(length(Y_pure), mean=0,sd=sqrt(.1*(var(Y_pure))))
+
+Y_quiet_real<-Y_pure + rnorm(length(Y_pure), mean=0,sd=sqrt(.000001*(var(Y_pure))))
+
+```
+
+Least Squares
+```{r}
+beta_hat_pure<-coef(lm(Y_pure~X-1))
+
+plot(beta_hat_pure,beta)
+beta_hat_real<-coef(lm(Y_real~X-1))
+plot(beta_hat_real,beta)
+```
+
+Lasso Estimator: estimating beta
+```{r}
+lasso_mod <- cv.glmnet(x=X, y=Y_pure,alpha=1)
+beta_lasso <- predict(lasso_mod, type = "coefficients", s = lasso_mod$lambda.min)
+
+plot(as.numeric(beta_lasso)[-1],beta)
+
+lasso_mod_real<-cv.glmnet(x=X, y=Y_real, alpha=1)
+beta_lasso_real <- predict(lasso_mod, type = "coefficients", s = lasso_mod$lambda.min)
+plot(as.numeric(beta_lasso_real)[-1],beta)
+```
+
+Principal components
+```{r}
+sing_vals <- svd(X)$d
+R2<-cumsum(sing_vals^2)/sum(sing_vals^2)
+plot(R2~sing_vals)
+
+n99<-min(which(R2>.99))
+```
+
+Rand
+```{r}
+sing_vals_X_rand<-svd(X_rand)$d
+R2_X_rand<-cumsum(sing_vals_X_rand^2)/sum(sing_vals_X_rand^2)
+
+n99_rand<-min(which(R2_X_rand>.99))
+
+plot(sing_vals_X_rand~R2_X_rand)
+```
+
+Corr
+```{r}
+sing_vals_X_corr<-svd(X_corr)$d
+R2_X_corr<-cumsum(sing_vals_X_corr^2)/sum(sing_vals_X_corr^2)
+plot(sing_vals_X_corr~R2_X_corr)
+
+n99_corr<-min(which(R2_X_corr>.99))
+
+```
+
+pcrfit
+
+It needs 14 components to be over 0.85
+```{r}
+pcr.fit <- pcr(Y_real ~ X, scale = TRUE, validation="CV")
+sing_vals_pcr<-R2(pcr.fit)
+plot(sing_vals_pcr)
+abline(.85,0,col="red")
 
 
+```
 
-## Test statements
 
 ```{r}
 scoreActivity::score253(15)
