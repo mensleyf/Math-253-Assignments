@@ -68,7 +68,7 @@ LL_logistic(data=Default,
 
 optimize
 ```{r}
-best<-optim(par=c(intercept=3,income=-.002),
+best_coefs<-optim(par=c(intercept=3,income=-.002),
             fn=LL_logistic, 
             control= list(fnscale=-1),
             data = Default, outcome = Default$default == "Yes")

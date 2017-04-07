@@ -125,6 +125,9 @@ $(document).ready(function () {
 <div id="mira" class="section level1">
 <h1>Mira</h1>
 </div>
+<div id="working-with-indices-training-vs-testing-data" class="section level1">
+<h1>Working with indices: Training vs testing data</h1>
+</div>
 <div id="task-1" class="section level1">
 <h1>Task 1</h1>
 <pre class="r"><code>library(ISLR)
@@ -133,11 +136,10 @@ data(College,package = &quot;ISLR&quot;)</code></pre>
 <div id="task-2" class="section level1">
 <h1>Task 2</h1>
 <pre class="r"><code>Yield&lt;-(College$Enroll/College$Accept)
-#cbind(College,Yield)
 College$Yield&lt;-Yield</code></pre>
 </div>
-<div id="task-3" class="section level1">
-<h1>Task 3</h1>
+<div id="task-3-splitting-into-training-and-testing" class="section level1">
+<h1>Task 3: Splitting into Training and Testing</h1>
 <pre class="r"><code>all_indices&lt;-c(1:nrow(College))
 train_indices&lt;-sample(all_indices,size=200)
 test_indices&lt;-setdiff(all_indices,train_indices)
@@ -148,16 +150,15 @@ Test_data&lt;-data.frame(College[test_indices,])</code></pre>
 <h1>Task 4</h1>
 <pre class="r"><code>Yield_mod1&lt;-lm(Yield~Top10perc+Outstate+Expend,data=Train_data)</code></pre>
 </div>
-<div id="task-5" class="section level1">
-<h1>Task 5</h1>
+<div id="task-5-finding-train-mse" class="section level1">
+<h1>Task 5: finding train MSE</h1>
 <pre class="r"><code>Y_train&lt;-Train_data$Yield
 fhat_train&lt;-predict(Yield_mod1,newdata=Train_data)
 MSE_train&lt;-mean((fhat_train)^2)</code></pre>
 </div>
-<div id="task-6" class="section level1">
-<h1>Task 6</h1>
+<div id="task-6-finding-test-mse" class="section level1">
+<h1>Task 6: finding test MSE</h1>
 <pre class="r"><code>Yield_mod2&lt;-lm(Yield~Top10perc+Outstate+Expend,data=Test_data)
-
 Y_test&lt;-Test_data$Yield
 fhat_test&lt;-predict(Yield_mod1,newdata=Test_data)
 MSE_test&lt;-mean((fhat_test)^2)</code></pre>

@@ -2,6 +2,8 @@
 
 # Mira Ensley-Field
 
+# Drawing a histogram
+
 
 Task 1-4
 ```{r,include=FALSE}

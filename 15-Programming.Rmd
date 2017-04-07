@@ -2,6 +2,8 @@
 
 # Mira Ensley-Field
 
+# Dimension Reduction Methods
+
 The file is available at
 ```{r}
 load("mona.rda")
@@ -34,33 +36,39 @@ Y_quiet_real<-Y_pure + rnorm(length(Y_pure), mean=0,sd=sqrt(.000001*(var(Y_pure)
 
 ```
 
-Least Squares
+Least Squares Pure: When noiseless, linear model "finds" the pattern in the noise...all the dots at zero are on top of one another
 ```{r}
 beta_hat_pure<-coef(lm(Y_pure~X-1))
-
 plot(beta_hat_pure,beta)
+```
+
+Least Squares Real: when 'noisey' linear model bad at finding the pattern because the predictors are so multicolinear
+-can scale noise up and down
+-glmnet package has a command cv.glmnet() which uses cross-validation to choose an appropriate value of λ
+```{r}
 beta_hat_real<-coef(lm(Y_real~X-1))
 plot(beta_hat_real,beta)
 ```
 
-Lasso Estimator: estimating beta
+Lasso Estimator Pure: The Lasso does okay at the pure data
 ```{r}
 lasso_mod <- cv.glmnet(x=X, y=Y_pure,alpha=1)
 beta_lasso <- predict(lasso_mod, type = "coefficients", s = lasso_mod$lambda.min)
-
 plot(as.numeric(beta_lasso)[-1],beta)
+```
 
+Lasso Estimator Real: The Lasso does way better than the linear model on noisy daya
+```{r}
 lasso_mod_real<-cv.glmnet(x=X, y=Y_real, alpha=1)
 beta_lasso_real <- predict(lasso_mod, type = "coefficients", s = lasso_mod$lambda.min)
 plot(as.numeric(beta_lasso_real)[-1],beta)
 ```
 
-Principal components
+Principal components: these are cumulative densities, showing how many of the top rank matrices are needed to explain what percent of the data
 ```{r}
 sing_vals <- svd(X)$d
 R2<-cumsum(sing_vals^2)/sum(sing_vals^2)
 plot(R2~sing_vals)
-
 n99<-min(which(R2>.99))
 ```
 

@@ -1,6 +1,9 @@
 # In-Class Programming Activity, Day 3
 
 #Mira
+
+# Working with indices: Training vs testing data
+
 #Task 1
 
 ```{r}
@@ -18,7 +21,7 @@ College$Yield<-Yield
 
 ```
 
-#Task 3
+#Task 3: Splitting into Training and Testing
 ```{r}
 all_indices<-c(1:nrow(College))
 train_indices<-sample(all_indices,size=200)
@@ -33,8 +36,7 @@ Test_data<-data.frame(College[test_indices,])
 Yield_mod1<-lm(Yield~Top10perc+Outstate+Expend,data=Train_data)
 ```
 
-#Task 5
-
+#Task 5: finding train MSE
 ```{r}
 Y_train<-Train_data$Yield
 fhat_train<-predict(Yield_mod1,newdata=Train_data)
@@ -43,10 +45,9 @@ MSE_train<-mean((fhat_train)^2)
 ```
 
 
-#Task 6
+#Task 6: finding test MSE
 ```{r}
 Yield_mod2<-lm(Yield~Top10perc+Outstate+Expend,data=Test_data)
-
 Y_test<-Test_data$Yield
 fhat_test<-predict(Yield_mod1,newdata=Test_data)
 MSE_test<-mean((fhat_test)^2)

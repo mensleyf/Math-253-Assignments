@@ -3,14 +3,16 @@
 # Mira Ensley-Field
 
 # Likelihood Calculations
+
+A likelihood is a probability of a set of observations given a model. In the simplest terms, a probability is a number between zero and one. In practice, one works with the logarithm of the likelihood, which will be a number between 0 and −∞−∞. Of course, at the point where the likelihood has a maximum, the log-likelihood will also have a maximum. The reason to prefer log-likelihoods is that likelihoods can be very, very small, beyond the capabilities of numerical calculations in computer hardware. The logarithm of the likelihood, however, is easily used in numerical calculations.
+
+Create exponential function
 ```{r}
 vals<-rexp(n=10,rate=1/100)
-test200<-sum(log(dexp(x=vals,rate=1/200)))
+test200<-sum(log(dexp(x=vals,rate=1/200))) #gives log likelihood
 
-
-LL_exp<-function(rate){ 
+LL_exp<-function(rate){  
   sum(log(dexp(x=vals,rate=rate)))
-      
 }
 
 rates<-seq(1/200,1/50,length=100)
@@ -18,9 +20,7 @@ results<-sapply(rates,LL_exp)
 plot(results~(1/rates))
 
 optimize(f=LL_exp,lower=1/200,upper=1/50,maximum=TRUE)
-
 exp_results<-optimize(LL_exp,lower=1/200,upper=1/50,maximum=TRUE)
-
 ```
 
 ## Test statements

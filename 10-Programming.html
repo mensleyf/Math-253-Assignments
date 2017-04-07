@@ -2700,7 +2700,7 @@ library(mosaic)</code></pre>
             outcome = Default$default == &quot;Yes&quot;)</code></pre>
 <pre><code>## [1] -2425.733</code></pre>
 <p>optimize</p>
-<pre class="r"><code>best&lt;-optim(par=c(intercept=3,income=-.002),
+<pre class="r"><code>best_coefs&lt;-optim(par=c(intercept=3,income=-.002),
             fn=LL_logistic, 
             control= list(fnscale=-1),
             data = Default, outcome = Default$default == &quot;Yes&quot;)
@@ -2733,8 +2733,8 @@ glm(default==&quot;Yes&quot;~income,data=Default,family=&quot;binomial&quot;)</c
 ## passed: is.function(LL_logistic)
 ## passed: LL_logistic(data = Default, coefs = c(intercept = 1, income = -1e-04), 
 ##     outcome = Default$default == &quot;Yes&quot;)
-## FAILED: object &quot;best_coefs&quot; doesn't exist.
-## ERROR when running  check(TRUE, &quot;par&quot; %in% names(best_coefs))</code></pre>
+## passed: object &quot;best_coefs&quot; exists
+## passed: &quot;par&quot; %in% names(best_coefs)</code></pre>
 </div>
 </div>
 
