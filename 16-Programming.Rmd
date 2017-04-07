@@ -2,6 +2,182 @@
 
 Your work goes here ...
 
+# Mira
+# Knots, cubic spline fitter
+
+```{r}
+library(ISLR)
+```
+
+the knots: returns k quariles with values 1/(k+1), 2/(k+1)...etc 
+probs: for #'s 1 thru k, calculates the prob
+```{r}
+z<-runif(100,0,10)
+
+my_knots<-function(x=z,k=5){
+  quantile(x,probs=(1:k)/(k+1))
+}
+```
+
+
+```{r}
+my_knots(z,5)
+```
+
+The basis set
+creates a cubic model matrix: first four are 'built in' functions, any additional must be specified
+```{r}
+spline_model_matrix<-function(x,knots){
+ MM<-cbind(1,x,x^2,x^3)
+  for (i in 1:length(knots)) {
+    new_vector<-ifelse(x<knots[i],0,(x-knots[i])^3)
+    MM<-cbind(MM,new_vector)
+  }
+  MM
+ }
+```
+
+# creates three new_vectors to help approximate z
+```{r}
+test<-spline_model_matrix(z,my_knots(z,3))
+```
+
+ You’ll have to go back to
+fit_spline() and arrange for it to include the rse. This is the sum of
+square residuals divided by the degrees of freedom in the residual.3
+
+Finding best linear combination
+```{r}
+fit_spline <- function(formula, k=2, data=parent.frame()) {
+  y <- eval(formula[[2]], envir=data)
+  x <- eval(formula[[3]], envir=data)
+  knot_locations <- my_knots(x, k)
+  MM <- spline_model_matrix(x, knot_locations)
+  mod <- lm(y ~ MM - 1)
+  res <- list(coef = coef(mod), knots = knot_locations, cov = vcov(mod))
+  class(res) <- "my_spline"
+  return(res)
+}
+
+```
+
+```{r}
+mod<-fit_spline(data=mtcars,k=2,formula=mpg~hp)
+```
+
+# My Spline (simple)
+
+```{r}
+predict.my_spline <-function(mod, newx, level = 0.95, intervals=c("none", "confidence", "prediction")) {
+  intervals <- match.arg(intervals)
+  MM <- spline_model_matrix(newx, mod$knots)
+  vals <- MM %*% mod$coef
+  se <- sqrt(rowSums(MM %*% mod$cov * MM))
+  
+  if (intervals == "none") return(vals)
+  else return(NULL) # for future use
+}
+```
+
+
+```{r}
+mod<-fit_spline(data=Wage,k=17,formula=wage~age)
+
+plot(wage~age,data=Wage)
+x<-0:100 
+y<-predict.my_spline(mod, newx=x)
+lines(x,y,col="red")
+```
+
+Confidence intervals
+```{r}
+predict.my_spline <-function(mod, newx, level = 0.95, intervals=c("none", "confidence", "prediction")) {
+
+  #intervals <- match.arg(intervals)
+
+  MM <- spline_model_matrix(newx, mod$knots)
+  se <- sqrt(rowSums(MM %*% mod$cov * MM))
+  vals <- MM %*% mod$coef
+  upper<-vals + 2*se
+  lower<-vals-2*se
+  conf<-data.frame(vals,upper,lower)
+  
+   if(intervals=="confidence") {
+     print("CONFIDENCE")
+    return(conf)
+  }  else return(NULL) # for future use
+}
+```
+
+
+
+```{r}
+mod<-fit_spline(data=Wage,k=17,formula=wage~age)
+plot(wage~age,data=Wage)
+x2<-1:100
+y2<-predict.my_spline(mod, newx=x2,intervals="confidence")
+lines(x2,y2[,1],col="red") 
+lines(x2,y2[,2],col="green") 
+lines(x2,y2[,3],col="blue") 
+
+
+```
+
+will return the three-column data frame,
+but giving the 95% prediction intervals. These will be based on se
+and the standard error of the residuals rse from the fit. The prediction
+standard error is sqrt(seˆ2 + rseˆ2).
+
+Prediction intervals
+
+```{r}
+fit_spline <- function(formula, k=2, data=parent.frame()) {
+  y <- eval(formula[[2]], envir=data)
+  x <- eval(formula[[3]], envir=data)
+  knot_locations <- my_knots(x, k)
+  MM <- spline_model_matrix(x, knot_locations)
+  mod <- lm(y ~ MM - 1)
+  res <- list(coef = coef(mod), knots = knot_locations, cov = vcov(mod))
+  rse<-sum(coef(mod))
+  class(res) <- "my_spline"
+  return(res)
+}
+
+```
+
+
+```{r}
+predict.my_spline <-function(mod, newx, level = 0.95, intervals=c("none", "confidence", "prediction")) {
+
+  #intervals <- match.arg(intervals)
+
+  MM <- spline_model_matrix(newx, mod$knots)
+  se <- sqrt(rowSums(MM %*% mod$cov * MM))
+  vals <- MM %*% mod$coef
+  upper<-vals+2*sqrt(se*se + rse*rse)
+  lower<-vals-2*sqrt(se*se + rse*rse)
+
+  conf<-data.frame(vals,upper,lower)
+  
+   if(intervals=="prediction") {
+     print("PREDICTION")
+    return(conf)
+  }  else return(NULL) # for future use
+}
+```
+
+
+```{r,eval=FALSE}
+mod<-fit_spline(data=Wage,k=17,formula=wage~age)
+#plot(wage~age,data=Wage)
+x3<-1:100
+#y3<-predict.my_spline(mod, newx=x3,intervals="prediction")
+#lines(x2,y2[,1],col="red") 
+#lines(x2,y2[,2],col="green") 
+#lines(x2,y2[,3],col="blue") 
+
+
+```
 
 
 ## Test statements
