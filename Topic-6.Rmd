@@ -1,2 +1,230 @@
 # Topic 6 Exercises: Selecting Model Terms
 
+# Mira Ensley-Field
+
+# Theory
+
+# 6.8.1
+**Q: We perform best subset , forward stepwise, and backward stepwise selection on a single data set We obtain p+1 models containing 0,1,...p predictors**
+
+a.) Which of the three models with k predictors has smallest training RSS
+
+(I answered this question a few different ways because I wasn't sure what exactly it was asking....)
+
+- In **best subset selection** the model selected will be the one   with the lowest training RSS because every single possibility is tried.
+
+- In **forward stepwise selection** the model with the lowest training RSS will be the model tried among the p-k model possibilities if they increase the model for each additional predictor
+
+- In **backward stepwise selection** the model with the lowest training RSS will be the same as from best subset selection, because it will start with all predictors, and only remove the ones that aren't useful.
+
+
+The smallest training RSS occurs in the best subset model and backwards selection model. The best subset model goes through every possibility that forward and backward selection do, so it is impossible that either of those would end up with a better RSS. However, the trade-off is that the best subset model is very computationally expensive. The backwards selection starts with all predictors, and only removes the ones that aren't good.
+
+The smallest training RSS will also occur in models that have more p predictors. A model with the maximum p predictors will having a lower training RSS than a model with only some predictors. This isn't because the extra predictors are necessarily good, but because adding predictors can only decrease the training RSS.
+
+b.) Which of the three models with k predictors has smallest test RSS
+
+The best subset selection model will probably, on average, have the smallest RSS because it goes through so many possibilities. But it is possible that the other two might perform better just through luck.
+
+c.) True or False?
+
+  + i. True , the k+1 variable model added a predictor to the k variable model, so the k variable model must be a subset
+  
+  
+  + ii. True, again, the k variable model is always going to be a subset because backwards selection operates by removing the kth variable but keeping the rest of the variables the sa,e 
+  
+  
+  + iii. False I see no reason why forwards and backwards selection would have to choose the same variables--it's possible but not necessarily true
+  
+  
+  + iv. False, Again, this might happen through chance but there's no reason for it to always be true.
+  
+  
+  + v. False, best subset selection looks at every single possibility for each k variables, so there's no reason why the k variable model would be a subset of the k+1, it's possible that it'd happen through chance, but not a guarantee
+
+# 6.8.2. True or False, justify your answer
+
+a.) The Lasso, relative to least squares is:
+
+  -iii. less flexibile and hence will give improved prediction accuracy when its increase in bias is less thatn its decrease in variance
+
+The Lasso is less flexible because it tends to cut out predictors, thus decreasing the size of the model, making it less flexible. Less flexibility always increases bias and decreases variance (bias-variance trade-off)
+
+b.) Ridge Regression, relative to least squares is:
+
+  -iii. less flexibile and hence will give improved prediction accuracy when its increase in bias is less thatn its decrease in variance
+
+Ridge Regression is les flexible (Assuming you make lambda > 0) becauase it increases the 'penalty' for having more predictors, this tends to decrease the size of the model, making it less flexible.  Less flexibility always increases bias and decreases variance (bias-variance trade-off)
+
+c.) Non-linear Methods, relative to least squares is:
+
+  - ii. More flexible and hence will give improved prediction accuracy when its increase in variance is less than its decrease in bias
+
+Non-linear methods are more flexible because they don't 'force' the model to have a linear structure. More flexibility always decreases bias, but can increase bariance (bias-variance trade-off)
+
+
+# Applied
+
+#6.8.9 Generate simulated data, then perform best subset selection
+
+```{r}
+library(ISLR)
+library(leaps)
+library(glmnet)
+```
+
+**a.) and b.)**
+
+```{r}
+set.seed(123)
+x<-rnorm(100)
+noise<-rnorm(100)
+
+b0<-4
+b1<-5
+b2<-6
+b3<-7
+
+y<-b0 + b1*x + b2*(x^2) + b3*(x^3) + noise 
+
+fake<-data.frame(x,y)
+```
+
+**c.) Best subset selection**
+```{r}
+regfit<-regsubsets(y~x+ I(x^2)+I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9)+I(x^10) ,data=fake)
+summary_regfit<-summary(regfit)
+```
+
+#cp value 
+```{r}
+plot(summary_regfit$cp, xlab = "Number of variables", ylab = "C_p")
+lines(summary_regfit$cp,col="red")
+```
+
+```{r}
+summary_regfit$cp
+
+a<-"Minimum cp occurs when the number of x's included is "
+b<-which.min(summary_regfit$cp)
+print(c(a,b))
+```
+
+**BIC**
+```{r}
+plot(summary_regfit$bic, xlab = "Number of variables", ylab = "BIC")
+lines(summary_regfit$bic,col="blue")
+```
+
+```{r}
+summary_regfit$bic
+
+a<-"Minimum BIC occurs when the number of x's included is "
+b<-which.min(summary_regfit$bic)
+print(c(a,b))
+```
+
+```{r}
+plot(summary_regfit$adjr2, xlab = "Number of variables", ylab = "adj r2" )
+lines(summary_regfit$adjr2,col="green")
+```
+
+```{r}
+summary_regfit$adjr2
+
+a<-"Maximum adj r2 occurs when the number of x's included is "
+b<-which.max(summary_regfit$adjr2)
+print(c(a,b))
+```
+
+```{r}
+cp<-which.min(summary_regfit$cp)
+bic<-which.min(summary_regfit$bic)
+adjr2<-which.max (summary_regfit$adjr2)
+
+print(c(cp,bic,adjr2))
+```
+
+**d.) forward step-wise**
+```{r}
+forward_regfit<-regsubsets(y~x+ I(x^2)+I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9)+I(x^10) ,method="forward",data=fake)
+
+forward_summary<-summary(forward_regfit)
+
+cp_forward<-which.min(forward_summary$cp)
+bic_forward<-which.min(forward_summary$bic)
+adjr2_forward<-which.max(forward_summary$adjr2)
+
+print(c(cp_forward,bic_forward,adjr2_forward)) 
+
+```
+
+
+**d.) backward step-wise**
+```{r}
+backward_regfit<-regsubsets(y~x+ I(x^2)+I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9)+I(x^10) ,method="backward",data=fake)
+
+backward_summary<-summary(backward_regfit)
+
+cp_backward<-which.min(backward_summary$cp)
+bic_backward<-which.min(backward_summary$bic)
+adjr2_backward<-which.max(backward_summary$adjr2)
+
+print(c(cp_backward,bic_backward,adjr2_backward))
+
+```
+
+d) While this changes everytime I run it, in general forward selction seems to have fewer terms included than backwards selection
+
+**e.) Lasso**
+```{r}
+#grid=10^seq(10,-2,length=100)
+x_matrix<-model.matrix(y~x+ I(x^2)+I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9)+I(x^10))
+
+lasso<-cv.glmnet(x_matrix,y,alpha=1)
+
+plot(lasso)
+```
+```{r}
+best_lambda<-lasso$lambda.min
+print(best_lambda)
+```
+refit using best lambda
+```{r}
+fitted_lasso<-glmnet(x_matrix,y,alpha = 1)
+predict(fitted_lasso,s=best_lambda,type="coefficients") [1:11,]
+```
+
+The coefficients I got seem to show that the x^5 term on don't add anything meaningful to the model. The x^4 term is low, but wasn't pushed to zero.
+
+
+**f.) generate new response variable, and compare best subset and lasso**
+
+```{r}
+b0=3
+b7=5
+v<-b0+b7*x^7+noise
+```
+
+**best subset selection**
+```{r}
+new_regfit<-regsubsets(v~x+ I(x^2)+I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9)+I(x^10) ,data=fake)
+
+new_summary_regfit<-summary(new_regfit)
+coef(new_regfit,which.max(new_summary_regfit$cp))
+```
+
+According to the model obtained using best subset selection the intercept (B0) is approximately 3 and the coefficient on X^7 is approximately 5. Those are what I set them up, so that is good. But it includes a whole lot of unnecesary terms.
+
+**Lasso**
+```{r}
+new_x_matrix<- model.matrix(v~x+ I(x^2)+I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9)+I(x^10))
+
+new_lasso<-cv.glmnet(new_x_matrix,v,alpha=1 )
+new_best_lambda<-new_lasso$lambda.min
+
+new_fitted_lasso<-glmnet(new_x_matrix,v,alpha=1)
+predict(new_fitted_lasso,s=new_best_lambda,type="coefficients") [1:11,]
+```
+
+The lasso detected that the x^7 was the important term, and dropped all the rest of the terms. The intercept was fairly off, but the coefficient in front of x^7 was very close. If interpretability is very  important, this model is much easier to interpret as it only contains the most important terms.
