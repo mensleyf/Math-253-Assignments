@@ -1,2 +1,173 @@
 # Topic 7 Exercises: Nonlinear regression
 
+# programming: 
+
+#7.9.11 
+
+GAMS:  explore backfitting in the context of multiple linear regression.
+
+Suppose that we would like to perform multiple linear regression, but
+we do not have software to do so. Instead, we only have software
+to perform simple linear regression. Therefore, we take the following
+iterative approach: we repeatedly hold all but one coefficient estimate
+fixed at its current value, and update only that coefficient
+estimate using a simple linear regression. The process is continued until
+convergence—that is, until the coefficient estimates stop changing.
+We now try this out on a toy example
+
+```{r}
+library(ISLR)
+library(gam)
+
+```
+
+
+a.)
+```{r}
+set.seed(123)
+noise<-rnorm(100)
+X1<-rnorm(100)
+X2<-rnorm(100)
+Y<-5*X1+10*X2+noise
+
+B1<-4
+```
+
+#keeping B1 constant; 
+```{r}
+count=1
+Bs = matrix(NA,nrow=1000,ncol=3)
+
+for(count in 1:1000) {
+  
+#pretend x1 doesn't affect y, remove B2 and then solve for X2
+a<-Y-B1*X1
+B2<-lm(a~X2)$coef[2]
+   
+#pretend recipricol
+  a<-Y-B2*X2
+    fit = lm(a~X1)
+  B1<-lm(a~X1)$coef[2]
+  
+  B0 = fit$coef[1]
+   
+   Bs[count,1] = B0
+   Bs[count,2] = B1
+   Bs[count,3] = B2
+}
+
+Bs[1:10]
+
+plot(1:1000,ylim=c(-10,10))
+points(Bs[,1],col="black")
+points(Bs[,2],col="red")
+points(Bs[,3],col="blue")
+```
+
+```{r}
+
+mod= lm(Y~X1+X2)
+coef(mod)
+plot(1:1000,ylim=c(-10,10))
+
+
+
+abline(h = fit$coef[1],col="black")
+abline(h = fit$coef[2], col="red")
+abline(h = fit$coef[3], col="blue")
+```
+
+- my fits seemed to give a good estimate very quickly...I maybe have done something wrong...I would have expected it to settle out eventualy at the right values, but not start and stay there
+
+# theory
+
+#§7.9 problem 3
+
+Suppose we fit a curve with basis functions 
+b1(X) = X, 
+b2(X) = (X − 1)2I(X ≥ 1). 
+
+(Note that I(X ≥ 1) equals 1 for X ≥ 1 and 0 otherwise.) 
+
+We fit the linear regression model Y = β0 + β1b1(X) + β2b2(X) + error, and obtain coefficient estimates βˆ0 = 1, βˆ1 = 1, βˆ2 = −2. Sketch the estimated curve between X = −2 and X=2. 
+
+Note the intercepts,slopes, and other relevant information.
+
+- B0=intercept=1
+
+- linear for -2 to 1, with positive slope. Then quadratic with negative slope
+
+- linear formula = 1 + x
+
+- quad formula =  1 + x + -2* (x-1)^2
+
+
+```{r}
+x_points<-c(-2,-1,0,1)
+coefs<-c(-1,0,1,2)
+
+plot(x=(-2:2),y=c(-1:2,1))
+lines(x_points,coefs,col="blue")
+points(x=2,y=1)
+
+
+
+```
+
+#§7.9 problem 4
+
+Q4. Suppose we fit a curve with basis functions b1(X)=I(0≤X≤2)−(X−1)I(1≤X≤2)b1(X)=I(0≤X≤2)−(X−1)I(1≤X≤2), b2(X)=(X−3)I(3≤X≤4)+I(4≤X≤5)b2(X)=(X−3)I(3≤X≤4)+I(4≤X≤5). 
+
+We fit the linear regression model
+
+Y=β0+β1b1(X)+β2b2(X)+ε,
+
+and obtain coefficient estimates β̂ 0=1, β̂^1=1, β̂^2=3. Sketch the estimated curve between X=−2 and X=2. Note the intercepts, slopes, and other relevant information.
+
+```{r}
+x<-c(-2:2)
+B0hat<-c(1,1,1,1,1)
+B1hat<-c(1,1,1,1,1)
+B2hat<-c(3,3,3,3,3)
+
+b1<-c(0,0,1,1,0)
+b2<-c(0,0,0,0,0)
+
+y<-(B0hat+B1hat*b1+B2hat*b2*x)
+xyframe<-data.frame(B0hat,B1hat,B2hat,b1,b2,x,y)
+```
+
+
+
+```{r}
+plot(y~x,data=xyframe)
+lines(x=c(-2,-1,0),y=c(1,1,1))
+lines(x=c(-0.0001,0),y=c(1,2),col="red")
+lines(x=c(0,1),y=c(2,2),col="blue")
+lines(x=c(1,2),y=c(2,1),col="green")
+```
+- from x=-2 to x=0 ...line is constant with y=1, slope = 0
+- from x=0 to x=1  ... line is constant with y=2, slope = 0
+- from x=1 tp x=2 .....line is linear with y=3-x, slope = -1
+
+
+
+#§7.9 problem 5
+
+5. Consider two curves, ˆg1 and ˆg2, defined by
+g1 has  lambda*3d deriv
+g2 has lambda*4th deriv
+
+(g2 must be smoother or else be penalized)
+
+**(a) As λ → ∞, will ˆg1 or ˆg2 have the smaller training RSS?**
+- g2 will have the smaller RSS. Lambda approaching infinity puts an increasingly large penalty on "non-smooth-ness" so g2 with the 4th deriv must be as close to perfectly smooth as possible otherwise it will be penalized harshly. This means g2 wil be highly flexible, so I expect g2 to be very 'good' at in-sample because it will be so flexible.
+
+**(b) As λ → ∞, will ˆg1 or ˆg2 have the smaller test RSS?**
+- g1 will have the smaller RSS, following a very similar reason.Since g2 will be highly flexible,  it will have high variance because it will be increasingly overfitted to the training data. This will mean it will likely have a very large test RSS.
+
+**(c) For λ = 0, will ˆg1 or ˆg2 have the smaller training and test RSS?**
+- when lambda is zero, then there isn't any reason that the two functions will be different, so I'd expect them to have a very similar trining and test RSS
+
+
+
