@@ -28,9 +28,10 @@ set.seed(123)
 noise<-rnorm(100)
 X1<-rnorm(100)
 X2<-rnorm(100)
-Y<-5*X1+10*X2+noise
-
 B1<-4
+B2<-9
+Y<-B1*X1+B2*X2+noise
+
 ```
 
 #keeping B1 constant; 
@@ -38,27 +39,27 @@ B1<-4
 count=1
 Bs = matrix(NA,nrow=1000,ncol=3)
 
-for(count in 1:1000) {
+for(count in 1:100) {
   
 #pretend x1 doesn't affect y, remove B2 and then solve for X2
 a<-Y-B1*X1
 B2<-lm(a~X2)$coef[2]
    
-#pretend recipricol
-  a<-Y-B2*X2
-    fit = lm(a~X1)
-  B1<-lm(a~X1)$coef[2]
+#pretend X2 doesn't affect y, remove B1 and then solve for X2
+c<-Y-B2*X2
+fit = lm(c~X1)
+B1<-lm(c~X1)$coef[2]
   
-  B0 = fit$coef[1]
+B0 = fit$coef[1]
    
    Bs[count,1] = B0
    Bs[count,2] = B1
    Bs[count,3] = B2
 }
 
-Bs[1:10]
+Bs[1:100]
 
-plot(1:1000,ylim=c(-10,10))
+plot(1:100,ylim=c(-10,10))
 points(Bs[,1],col="black")
 points(Bs[,2],col="red")
 points(Bs[,3],col="blue")

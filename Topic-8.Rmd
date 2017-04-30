@@ -1,2 +1,169 @@
 # Topic 8 Exercises: Tree-based models
 
+# Mira Ensley-Field
+
+# programming: 8.4.12
+
+```{r}
+library(ISLR)
+library(dplyr)
+library(tree)
+library(randomForest)
+library(rpart.plot)
+library(gbm)
+```
+
+
+Apply boosting, bagging, and random forests to a data set of your
+choice. Be sure to fit the models on a training set and to evaluate their performance on a test set. How accurate are the results compared to simple methods like linear or logistic regression? Which of these
+approaches yields the best performance?
+
+For all, I will be using 5 predictors with the model form:
+
+wage_binom2~age+year+maritl+education+health_in
+
+which are the top 5 predictors I got looking at importance values in RandomForest
+I will calculate error rates using this model using logistic regression, boosting, bagging, and random forest.
+
+```{r}
+all_indices<-c(1:nrow(Wage))
+Wage$wage_binom<-ifelse(Wage$wage>100,"high","low")
+Wage$wage_binom2<-as.factor(Wage$wage_binom)
+Wage$wage_binom3<-ifelse(Wage$wage_binom2=="high",1,0)
+
+
+drops <- c("wage","wage_binom")
+Wage[ , !(names(Wage) %in% drops)]
+
+row<-sample(nrow(Wage),nrow(Wage)/2)
+train<-Wage[row,]
+test<-Wage[-row,]
+```
+
+
+
+logistic: error = 0.257
+```{r}
+mod_log<-glm(wage_binom3~age+year+maritl+education+health_ins,data=train,family="binomial")
+log_out_sample<-predict(mod_log,newdata=test,type="response")
+log_pred<-ifelse(log_out_sample>=.5,1,0)
+b<-table(test$wage_binom3,log_pred)
+log_err<-(b[2,1]+b[1,2])/(b[1,2]+b[2,1]+b[1,1]+b[2,2])
+b
+log_err
+```
+
+Boosting: error is .29
+```{r}
+mod_boost<-gbm(wage_binom3~age+year+maritl+education+health_ins,data=train,n.trees=5000)
+boost_out_sample<-predict(mod_boost,newdata=test,n.trees=5000)
+boost_pred<-ifelse(boost_out_sample>=.5,1,0)
+b<-table(test$wage_binom3,boost_pred)
+boost_err<-(b[2,1]+b[1,2])/(b[1,2]+b[2,1]+b[1,1]+b[2,2])
+b
+boost_err
+
+```
+
+
+Bagging (rpart) .288
+```{r}
+mod_bag<-rpart(wage_binom3~age+year+maritl+education+health_ins,data=train)
+bag_out_sample<-predict(mod_bag,newdata=test)
+bag_pred<-ifelse(bag_out_sample>=.5,1,0)
+
+b<-table(test$wage_binom3, bag_pred)
+bag_err<-(b[2,1]+b[1,2])/(b[1,2]+b[2,1]+b[1,1]+b[2,2])
+bag_err
+
+
+```
+
+Random Forest: err rate = 0.292
+```{r}
+mod_forest<-randomForest(wage_binom2~age+year+maritl+education+health_ins,data=train)
+forest_out_sample <- predict(mod_forest, newdata = test)
+b<-table(test$wage_binom2, forest_out_sample)
+rf_err<-(b[2,1]+b[1,2])/(b[1,2]+b[2,1]+b[1,1]+b[2,2])
+rf_err
+```
+
+logistic: error = 0.257
+Boosting: error is .29
+Bagging (rpart) .288
+Random Forest: err rate = 0.292
+
+The lowest error I got was using logistic regression, I got 0.257. The boosting, bagging, and randomForest all got very close results to one another, all just about equal to 0.29. The more simple technique in this case however, did better.
+
+# theory: In §8.4 problems 1, 2, 3, 4, and 5
+
+#1 
+Draw an example (of your own invention) of a partition of twodimensional
+feature space that could result from recursive binary
+splitting. Your example should contain at least six regions. Draw a
+decision tree corresponding to this partition. Be sure to label all aspects of your figures, including the regions R1, R2,..., the cutpoints
+t1, t2,..., and so forth.
+
+Hint: Your result should look something like Figures 8.1 and 8.2
+
+#2
+It is mentioned in Section 8.2.3 that boosting using depth-one trees
+(or stumps) leads to an additive model... Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
+
+#3
+ Consider the Gini index, classification error, and cross-entropy in a
+simple classification setting with two classes. Create a single plot
+that displays each of these quantities as a function of ˆpm1. The xaxis
+should display ˆpm1, ranging from 0 to 1, and the y-axis should
+display the value of the Gini index, classification error, and entropy.
+
+Hint: In a setting with two classes, pˆm1 = 1 − pˆm2. You could make
+this plot by hand, but it will be much easier to make in R.
+
+pm1: prportoon of training observations in the mth region in the first class
+
+```{r}
+pmk<-seq(0,1,.01)
+
+  gini<-((pmk*(1-pmk))+((1-pmk)*(pmk)))
+  #gini<-2*p*(1-p)
+  class_err<-(1-pmax(pmk,1-pmk))
+  entropy<-(-((pmk*log(pmk))+(1-pmk)*log(1-pmk)))
+  
+```
+
+```{r}
+plot(x=c(0,1),y=c(-1,1),xlab="Increasing pmk", ylab="error rate", main="Gini (blue), Classification (green), and Cross Entropy (red)")
+points(x=pmk,y=gini,col="blue")
+points(x=pmk,y=class_err,col="green")
+points(x=pmk,y=entropy,col="red")
+
+```
+
+#4
+This question relates to the plots in Figure 8.12.
+(a) Sketch the tree corresponding to the partition of the predictor
+space illustrated in the left-hand panel of Figure 8.12. The numbers
+inside the boxes indicate the mean of Y within each region.
+(b) Create a diagram similar to the left-hand panel of Figure 8.12,
+using the tree illustrated in the right-hand panel of the same
+figure. You should divide up the predictor space into the correct
+regions, and indicate the mean for each region.
+
+#5
+There are two common ways to combine these results together into a
+single class prediction. One is the majority vote approach discussed in this chapter. The second approach is to classify based on the average probability. In this example, what is the final classification under each of these two approaches?
+
+```{r}
+p<-c(0.1, 0.15, 0.2, 0.2, 0.55, 0.6, 0.6, 0.65, 0.7, 0.75)
+
+maj_vote<-ifelse(p>.5,1,0)
+maj_vote_method<-sum(maj_vote)/length(maj_vote)
+
+avg_method<-sum(p)/length(p)
+
+print(maj_vote_method)
+print(avg_method)
+```
+
+The majority vote method would classify it as red, and the average probability method would classify as green
