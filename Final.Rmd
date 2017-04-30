@@ -1,0 +1,252 @@
+---
+title: "Final"
+output: html_document
+---
+## Predicting Incomes >$50,000 with logistic regression and recursive partitioning
+*Mira and Kate*
+
+
+## Part 1: Brief Intro to our Project and Dataset
+-Response Variable: Income >50K, <50K
+
+-13 predictors
+
+    + Quantitative: education-num,  capital-gain, capital-loss, hours-per-week
+    
+    + Categorical: workclass, education, relationship, marital status , race, sex, native-country, occupation
+
+- ~30,000 cases total, each representing and individual
+
+Our data from Kaggle can be found here [https://www.kaggle.com/uciml/adult-census-income] and it is data collected by the 1994 US Census on people over the age of 16, but under the age of 100. The task given was to predict whether a person would make over $50,000 a year. Since no real application was provided, we imagined how this data could be very useful for a company that wanted to do targeted advertising for low-income and high-income consumers.
+
+```{r setup, include=FALSE}
+#do any filtering and importing here, where it won't be included
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ISLR)
+library(dplyr)
+library(randomForest)
+library(rpart.plot)
+library(ggplot2)
+
+```
+
+```{r,echo=FALSE}
+census2<-read.csv(file="adult.csv",header=TRUE,sep=",")
+
+census<-
+  census2 %>%
+  filter(occupation !="?") 
+
+rows<-sort(sample(1:(nrow(census)),(nrow(census)%/%2)))
+c_train<-census[rows,]
+c_test<-census[-rows,]
+
+```
+
+First we imported our data, then we looked at the relative of the importance of different variables using the importance values from a random forest (note: native.country has too many levels for us to include it, so we filtered it out...in the future we could remove some cases from less numerous countries)
+
+```{r}
+mod_Everything <- randomForest(income ~.-native.country, data = census, importance = TRUE)
+importance(mod_Everything, type=1)
+```
+
+
+## Part 2: Logistic Regression
+
+## Part 3: Recusive Partitioning
+
+**'Tuning' the tree by modifying the Gini Coefficient threshold**
+
+The first approach we used was to create a tree to create a model to classify our data as well as to more easily be able to visualize the classifications and important variables our model was basing it off. Trees are easy to build and intuitive to look at, and an example we started with based off the importance values from running a preliminary randomForest model would be...
+```{r}
+mod4<-rpart(income~capital.gain+capital.loss+occupation+age,data=c_train)
+```
+which produces the plot...
+
+```{r,include=FALSE}
+rpart.plot(mod4)
+```
+But we needed a way to determine how many model terms to include...
+One approach would be to try to make many trees where we manually choose  different terms to include, but the rpart() function actually has a paramter, cp, that automatically sets a certain threshold for how 'useful' a term must be for it to be added. After looking through the R Documentation, we learned this 'cp' was actally the Gini Coefficient we studied in class, and we additionally learned of some other parameters that could be split, including minsplits and minbuckets.
+
+We were immediately interesting in creating many runs of the same model and using the 'cp' threhold to tune the model. We decided to create both graphical output showing the decreasingly complex trees that are produced as the 'cp' parameter is tuned upwards as well as the changes in the testing and training error rate. 
+
+After considering that our clients might have a preference for a model that "overestimates" or "underestimates" someone's income, we also decided to calculate the rate at which our model over and under-estimated the true income, reflecting our model's sensitivity and specificity respectively. We ended up doing this with two functions which we creatively named treebuilder() and treebuilder2(). The functions themselves can be seen in the .Rmd file, we are including only the output in the Html file.
+
+```{r,include=FALSE}
+
+mod_Everything<-rpart(income~.,data=c_train)
+mod1<-rpart(income~capital.gain,data=c_train)
+mod2<-rpart(income~capital.gain+capital.loss,data=c_train)
+mod3<-rpart(income~capital.gain+capital.loss+age,data=c_train)
+mod4<-rpart(income~capital.gain+capital.loss+occupation,data=c_train)
+
+```
+
+We used treebuilder and our results from the importance values from the randomForest to look at which predictor variables were 'good' and found that after adding capital.gain, occupation, capital.loss upon adding 'age' the out-of-sample test error rate increased, which led us to believe that the inclusion of this additional variable was overfitting the model.
+
+```{r, include=FALSE}
+treebuilder<-function(model=mod2){
+  pred<-predict(model,type="class")
+  a<-table(pred, c_test$income)
+  b<-table(pred,c_train$income) 
+  test_err<-(a[1,2]+a[2,1])/(a[1,1]+a[2,1] + a[1,2] +a[2,2])
+  test_overest<-(a[1,2]/(a[1,1]+a[2,1] + a[1,2] +a[2,2]))
+  test_underest<-(a[2,1]/(a[1,1]+a[2,1] + a[1,2] +a[2,2]))
+  tr_err<-(b[1,2]+b[2,1])/(b[1,1]+b[2,1] + b[1,2] +b[2,2])
+  tr_overest<-(b[1,2]/(b[1,1]+b[2,1] + b[1,2] +b[2,2]))
+  tr_underest<-(b[2,1]/(b[1,1]+b[2,1] + b[1,2] +b[2,2]))
+  rpart.plot(model)
+  df<-data.frame(test_err,test_overest,test_underest,tr_err,tr_overest,tr_underest)
+}
+```
+
+```{r, include=FALSE}
+treebuilder2<-function(model=mod_Everything) {
+   x<-seq(0,10,1)
+  y<-.01*x^2
+
+  #y<-c(0,.00005,.0001,.0005,.001,.005,.01,.1,.5,1) another possible set of y's to examine
+
+  mod_Everything0<-rpart(income~.,data=c_train,cp=y[1])
+  mod_Everything1<-rpart(income~.,data=c_train,cp=y[2])
+  mod_Everything2<-rpart(income~.,data=c_train,cp=y[3])
+  mod_Everything3<-rpart(income~.,data=c_train,cp=y[4])
+  mod_Everything4<-rpart(income~.,data=c_train,cp=y[5])
+  mod_Everything5<-rpart(income~.,data=c_train,cp=y[6])
+  mod_Everything6<-rpart(income~.,data=c_train,cp=y[7])
+  mod_Everything7<-rpart(income~.,data=c_train,cp=y[8])
+  mod_Everything8<-rpart(income~.,data=c_train,cp=y[9])
+  mod_Everything9<-rpart(income~.,data=c_train,cp=y[10])
+  mod_Everything10<-rpart(income~.,data=c_train,cp=y[11])
+
+#returns dataframe with all the test and training errors
+  a<-treebuilder(mod_Everything0) 
+  b<-treebuilder(mod_Everything1)
+  c<-treebuilder(mod_Everything2)
+  d<-treebuilder(mod_Everything3)
+  e<-treebuilder(mod_Everything4)
+  f<-treebuilder(mod_Everything5)
+  g<-treebuilder(mod_Everything6)
+  h<-treebuilder(mod_Everything7)
+  i<-treebuilder(mod_Everything8)
+  j<-treebuilder(mod_Everything9)
+  k<-treebuilder(mod_Everything10)
+  
+}
+```
+
+```{r}
+treebuilder2()
+```
+
+
+**Comparing  rpart() and randomForest()**
+While we appreciated the visualization and ability to tune the 'cp' parameter allowed to us in the rpart() package, we also wanted consider randomForest, which allows an additional layer of validity because it averages out many less-correlated trees and has proved itself a useful technique.
+
+We had two areas of comparison; first we looked at the overall accuracy, sensitivity, and specificity using the in-sample method. We felt this was somehwat useful in that neither model uses all the data at one time when creating coefficients and estimates--the random forest uses a subset of the data and a subset of the predictors, and the recursive partionining with the gini coefficient uses a subset of the data...
+
+Comparing randomForest and rpart errors calculated in-sample; showing the confusion matrix outputs
+```{r}
+mod_Everything <- randomForest(income ~capital.gain+capital.loss+occupation, data = census, importance = TRUE)
+randomForest_in_sample <- predict(mod_Everything, data = census, type= "class", split=TRUE)
+r<-table(census$income, randomForest_in_sample)
+
+mod_Everything_rpart <- rpart(income ~capital.gain+capital.loss+occupation , data = census)
+rpart_in_sample <- predict(mod_Everything_rpart, data = census, type= "class", split=TRUE)
+rp<-table(census$income, rpart_in_sample)
+
+r
+rp
+```
+
+The confusion matrices can then be used to calculate the in-sample accuracy, overestimation rate, and underestimation rate for each model, which we assembled into a dataframe for easy comparison
+```{r,echo=FALSE}
+err<-(r[1,2]+r[2,1])/(r[1,1]+r[2,1] + r[1,2] +r[2,2])
+overest<-(r[1,2]/(r[1,1]+r[2,1] + r[1,2] +r[2,2]))
+underest<-(r[2,1]/(r[1,1]+r[2,1] + r[1,2] +r[2,2]))
+
+sens<-(r[2,1]/(r[2,1]+r[2,2]))
+spec<-(r[1,1]/(r[1,2]+r[1,1]))
+
+rp_err<-(rp[1,2]+rp[2,1])/(rp[1,1]+rp[2,1] + rp[1,2] +rp[2,2])
+rp_overest<-(rp[1,2]/(rp[1,1]+rp[2,1] + rp[1,2] +rp[2,2]))
+rp_underest<-(rp[2,1]/(rp[1,1]+rp[2,1] + rp[1,2] +rp[2,2]))
+
+rp_sens<-(rp[2,1]/(rp[2,1]+rp[2,2]))
+rp_spec<-(rp[1,1]/(rp[1,2]+rp[1,1]))
+
+df<-data.frame(matrix(, nrow=2, ncol=4))
+names(df)<-c("model used", "err", "sens", "spec")
+df[1,1:4]<-c("randomForest",err,sens,spec)
+df[2,1:4]<-c("rpart",rp_err,rp_sens,rp_spec)
+
+df
+```
+Interestingly, the randomForest model is better overall, but more likely to committ 'overestimation' errors where it predicts a higher income than  client actually has. We imagine that if our client was a tax specialist, they would prefer to make 'underestimates' based on the assumption that most people would rather overpay taxes one year and be grateful for a refund, then underpay and potentially not be able to pay it off.
+
+
+```{r}
+mod_Everything <- randomForest(income ~capital.gain+capital.loss+occupation, data = c_train, importance = TRUE)
+randomForest_out_sample <- predict(mod_Everything, data = c_test, type= "class", split=TRUE)
+r<-table(c_test$income, randomForest_out_sample)
+
+mod_Everything_rpart <- rpart(income ~capital.gain+capital.loss+occupation, data = c_train)
+rpart_out_sample <- predict(mod_Everything_rpart, data = c_test, type= "class", split=TRUE)
+rp<-table(c_test$income, rpart_out_sample)
+
+r
+rp
+```
+
+```{r}
+err<-(r[1,2]+r[2,1])/(r[1,1]+r[2,1] + r[1,2] +r[2,2])
+overest<-(r[1,2]/(r[1,1]+r[2,1] + r[1,2] +r[2,2]))
+underest<-(r[2,1]/(r[1,1]+r[2,1] + r[1,2] +r[2,2]))
+
+sens<-(r[2,1]/(r[2,1]+r[2,2]))
+spec<-(r[1,1]/(r[1,2]+r[1,1]))
+
+rp_err<-(rp[1,2]+rp[2,1])/(rp[1,1]+rp[2,1] + rp[1,2] +rp[2,2])
+rp_overest<-(rp[1,2]/(rp[1,1]+rp[2,1] + rp[1,2] +rp[2,2]))
+rp_underest<-(rp[2,1]/(rp[1,1]+rp[2,1] + rp[1,2] +rp[2,2]))
+
+rp_sens<-(rp[2,1]/(rp[2,1]+rp[2,2]))
+rp_spec<-(rp[1,1]/(rp[1,2]+rp[1,1]))
+
+df<-data.frame(matrix(, nrow=2, ncol=4))
+names(df)<-c("model used", "err", "sens", "spec")
+df[1,1:4]<-c("randomForest",err,sens,spec)
+df[2,1:4]<-c("rpart",rp_err,rp_sens,rp_spec)
+
+df
+```
+
+```
+
+## Part 4: Improvements
+
+With the logistic regression models, we would like to create better "dummy codes" for some of our categorical variables so that the order truly did not matter and did not have any impact on our results.
+
+We really only briefly touched the data, there remains a lot that could be done to optimize the techniques and models we used. For the tree models, we equally split data into training and test data, with more time we would prefer to do k-fold analysis. 
+
+While we looked at the importance values from the randomForest to help inform our choices in which predictors, we could have more accurately and reliably used a hybrid step-wise selection model to decide which predictors to include.
+
+We only touched on exploring how changing the complexity parameter (Gini coefficient) impacted model output, and we certainly didn't try enough values to really find an 'optimum' and likeise we could also look at the cross-entropy as a way to make a threshold. There's certainly other parameters we could have played around with, like minsplit and minbuckets as well when making our trees.
+
+We began to try creating models that didn't use capital.gain and capital.loss because these seemed like potentially difficult to obtain data, but we only explored this with o
+
+Lastly, while we are confident in comparing accuracy, sensitivity, and specificity of our models, we don't have a good loss function to determine which of these a potential client (i.e. Snuggie. Inc would care most about).
+
+
+## Part 5: Conclusions
+
+We found the QDA seemed to be the only really significantly different approach in terms of overall accuracy model. We would suggest our clients no use QDA. LDA, logistic regression, randomForest, and recursive partitioning all seemed like good alternatives, with fairly consistent error rates of ~0.19%. However, we would be interested in further optimizing our model for the specificty and sensitivity that our client might want, not just the overall accuracy. 
+
+
+
+```{r pressure, echo=FALSE}
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
