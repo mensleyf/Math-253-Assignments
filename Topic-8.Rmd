@@ -4,7 +4,7 @@
 
 # programming: 8.4.12
 
-```{r}
+```{r, include=FALSE}
 library(ISLR)
 library(dplyr)
 library(tree)
@@ -25,7 +25,7 @@ wage_binom2~age+year+maritl+education+health_in
 which are the top 5 predictors I got looking at importance values in RandomForest
 I will calculate error rates using this model using logistic regression, boosting, bagging, and random forest.
 
-```{r}
+```{r, include=FALSE}
 all_indices<-c(1:nrow(Wage))
 Wage$wage_binom<-ifelse(Wage$wage>100,"high","low")
 Wage$wage_binom2<-as.factor(Wage$wage_binom)
@@ -39,8 +39,6 @@ row<-sample(nrow(Wage),nrow(Wage)/2)
 train<-Wage[row,]
 test<-Wage[-row,]
 ```
-
-
 
 logistic: error = 0.257
 ```{r}
@@ -65,7 +63,6 @@ boost_err
 
 ```
 
-
 Bagging (rpart) .288
 ```{r}
 mod_bag<-rpart(wage_binom3~age+year+maritl+education+health_ins,data=train)
@@ -89,9 +86,13 @@ rf_err
 ```
 
 logistic: error = 0.257
+
 Boosting: error is .29
+
 Bagging (rpart) .288
+
 Random Forest: err rate = 0.292
+
 
 The lowest error I got was using logistic regression, I got 0.257. The boosting, bagging, and randomForest all got very close results to one another, all just about equal to 0.29. The more simple technique in this case however, did better.
 
@@ -106,9 +107,16 @@ t1, t2,..., and so forth.
 
 Hint: Your result should look something like Figures 8.1 and 8.2
 
+**I did this by hand...I would be more than happy to show it to you or take a picture and email it**
+
 #2
 It is mentioned in Section 8.2.3 that boosting using depth-one trees
 (or stumps) leads to an additive model... Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
+
+Boosting improves the predictions from a decision true by 'growing' trees sequentially, so that each new tree involves information from all the previous trees. The tree is fitted slowly, but it is additive.Boosting classification trees relies on three parameters, the number of trees (B), the the shrinkage parameter (lambda), and the number of splits ( d, or interaction depth).
+
+Boosting with depth-one trees leads to an additive model because you are including multiple trees, each with  depth-one, in the final model. Even if d=1, you can still tune the number of trees produced (B) as well as the strictness (lambda) so that you are adding to your model each time you go through the algorithm.
+
 
 #3
  Consider the Gini index, classification error, and cross-entropy in a
@@ -126,7 +134,6 @@ pm1: prportoon of training observations in the mth region in the first class
 pmk<-seq(0,1,.01)
 
   gini<-((pmk*(1-pmk))+((1-pmk)*(pmk)))
-  #gini<-2*p*(1-p)
   class_err<-(1-pmax(pmk,1-pmk))
   entropy<-(-((pmk*log(pmk))+(1-pmk)*log(1-pmk)))
   
@@ -140,15 +147,22 @@ points(x=pmk,y=entropy,col="red")
 
 ```
 
+If my graph is correct, than it seems that all three have highest error rates for relativlely euqal class distributions, which isn't too surprising. It also seems that the classification error rate is outperforming the other two for this very simplified case and that the cross entropy has a higher error than the gini coefficiebt. Likewise the gini and cross-entropy are both parabolic, while the classification error has a sharp point in the middle.
+
 #4
 This question relates to the plots in Figure 8.12.
 (a) Sketch the tree corresponding to the partition of the predictor
 space illustrated in the left-hand panel of Figure 8.12. The numbers
 inside the boxes indicate the mean of Y within each region.
+
+**This is on a notebook page, again would be happy to send a photo if needed. Its a very left skewed tree.**
+
 (b) Create a diagram similar to the left-hand panel of Figure 8.12,
 using the tree illustrated in the right-hand panel of the same
 figure. You should divide up the predictor space into the correct
 regions, and indicate the mean for each region.
+
+**Same notebook, same page! Happy to email it!**
 
 #5
 There are two common ways to combine these results together into a
