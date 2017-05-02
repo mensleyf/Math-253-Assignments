@@ -1,8 +1,88 @@
 # In-Class Programming Activity, Day 17
 
 Your work goes here ...
+# Growing and Pruning Trees
+
+```{r}
+library(tree)
+```
+
+```{r}
+Cartoon_data <- data.frame(
+x = 1:8,
+y = c(2,5,1,3,8,5,4,6),
+class = c("A", "B", "A", "A", "B", "B", "A", "B")
+)
+```
+
+```{r}
+pure <- tree.control(8, mincut = 0, minsize = 1, mindev = 0)
+```
+
+Regression tree: output for x=3 is 1
+```{r}
+rtree_pure <- tree(y ~ x, data=Cartoon_data, control = pure)
+plot(rtree_pure)
+text(rtree_pure)
+```
+
+Classification tree: output for x=7 is A
+```{r}
+ctree_pure <- tree(class ~ x, data=Cartoon_data, control = pure)
+plot(ctree_pure)
+text(ctree_pure)
+
+```
+Evaluating the tree
+```{r}
+predict(rtree_pure)
+predict(ctree_pure)
+predict(rtree_pure, newdata = data.frame(x = 3))
+predict(ctree_pure, newdata = data.frame(x = 7))
+
+```
+
+Deviance of each node: done by hand
+
+Deviance of a tree
+```{r}
 
 
+rtree_5 <- prune.tree(rtree_pure, best = 5)
+ctree_2 <- prune.misclass(ctree_pure, best = 2)
+
+dev1<-deviance(rtree_pure)
+dev2<-deviance(ctree_pure)
+
+dev3<-deviance(rtree_5)
+dev4<-deviance(ctree_2)
+
+```
+
+Pruning
+```{r}
+rtree_5 <- prune.tree(rtree_pure, best = 5)
+ctree_2 <- prune.misclass(ctree_pure, best = 2)
+
+
+
+nterminal<-c(2:8)
+tree_dev<-c()
+is<-c()
+for (i in nterminal) {
+  pruned<-(prune.tree(rtree_pure,best=i))
+  tree_dev[i]<-deviance(pruned)
+  is[i]<-i
+  
+}
+```
+
+```{r}
+tree_deviance<-tree_dev[2:8]
+tree_deviance
+```
+
+Building a real classifier
 
 ## Test statements
 
