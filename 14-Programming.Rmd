@@ -2,10 +2,95 @@
 
 Your work goes here ...
 
+#Mira
+
+#Shrinkage and out-of-sample prediction error
+
+https://dtkaplan.github.io/math253/ProgrammingActivities/Day-14-Programming-Task.html
+
+```{r}
+library(glmnet)
+GenCont <- read.csv("http://tiny.cc/dcf/GenCont.csv")
+```
 
 
+pred_lda <- predict(lda_model, newdata = test_data)
+table(pred_lda$class, test_data$mpg01)
+mean(pred_lda$class != test_data$mpg01)
+
+lasso_mod_real<-cv.glmnet(x=X, y=Y_real, alpha=1)
+beta_lasso_real <- predict(lasso_mod, type = "coefficients", s = lasso_mod$lambda.min)
+plot(as.numeric(beta_lasso_real)[-1],beta)
+
+Comparing OLS to ridge
+```{r}
+compare_ols_ridge<-function(responses=GenCont[,1],predictors=GenCont[,-1],lambda=1) {
+
+ #training and testing data
+  train_rows<-sample(1:length(responses), size = floor(length(responses)/2))
+
+  GenCont_train<-GenCont[train_rows,]
+  GenCont_test<-GenCont[-train_rows,]
+  responses<-as.matrix(GenCont[,1])
+  predictors<-as.matrix(GenCont[,2:13])
+  
+  #predictors
+  train_data_pred <-as.matrix( predictors[train_rows,])
+  test_data_pred <- as.matrix(predictors[-train_rows, ])
+  
+  #response
+  train_data_resp <- as.matrix(responses[train_rows,])
+  test_data_resp <- as.matrix(responses[-train_rows, ])
+
+
+  #OLS (Linear Regression)
+  ols_mod<-lm(train_data_resp~train_data_pred)
+  ols_in_pred<-predict(ols_mod)
+  ols_out_pred<-predict(ols_mod,newx=test_data_resp)
+  
+  #MSPE
+  ols_in<-mean(ols_in_pred-train_data_resp)^2
+  ols_out<-mean(ols_out_pred-test_data_resp)^2
+  
+  #glmnet (Ridge Regression) GLM_MODnot working
+  
+  #glm_mod<-glmnet(x=train_data_pred,y=train_data_resp,alpha=0,lambda=lambda)
+  #glm_pred<-predict(glm_mod,newx=train_data_resp)
+  
+  #MSPE
+  ridge_in<-mean((ols_in_pred - train_data_pred)^2)
+  ridge_out<-mean((ols_out_pred-test_data_resp)^2)
+
+  Shrink_results<-data.frame(lambda,ols_in,ols_out,ridge_in,ridge_out)
+
+  return(Shrink_results)
+}
+```
+
+```{r}
+compare_ols_ridge(predictors=GenCont[,2:13],responses=GenCont$Phenotypes)
+```
+
+Exploring Lambda
+```{r}
+lambda_long<-seq(.1,100,1)
+Shrink_results<-compare_ols_ridge(predictors=GenCont[,2:13],responses=GenCont$Phenotypes,lambda=lambda_long)
+```
+  
+  
 ## Test statements
+
+Your function should return a named vector with these five components:
+lambda as well as ols_in, ridge_in, ols_out, ridge_out,
+each of which has the corresponding mean square prediction error.
+8. Use your function to create an object called Shrink_results with
+lambda = 1 and the GenCont data .
+Exploring Lambda
+Use your compare_ols_ridge() to look at the in- and out-of-sample
+prediction errors for a range of λ from 0.1 to 100
+
 
 ```{r}
 scoreActivity::score253(14)
 ```
+
