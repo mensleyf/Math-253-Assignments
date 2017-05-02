@@ -1,0 +1,366 @@
+---
+title: "logistic regression"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(statisticalModeling)
+library(dplyr)
+library(lda)
+library(mosaic)
+library(mosaicData)
+library(MASS)
+```
+
+```{r}
+census<-read.csv(file="adult.csv",header=TRUE,sep=",")
+nrow(census)
+```
+
+Logistic regression for only quantatitive variables
+
+
+```{r}
+t=sort(sample((1:32560),32560/2))
+ldataQ=census[,c(1,11,12,15)]
+trainingQ=ldataQ[t,]
+testingQ=ldataQ[-t,]
+Direction=testingQ$income
+```
+
+```{r}
+glm.fitQ=glm(income~capital.gain+capital.loss,data=trainingQ,family=binomial)
+```
+
+```{r}
+glm.probsQ=predict(glm.fitQ,testingQ,type="response")
+```
+
+```{r}
+glm.predQ=rep("<=50K", 16281)
+glm.predQ[glm.probsQ>0.5]=">=50K"
+table(glm.predQ,Direction)
+```
+
+
+Logistic regression for only quantatitive variables
+
+```{r}
+filteredCensus=census%>%filter(occupation!="?")
+numerical=rep(0,30718)
+numerical[filteredCensus$occupation=="Adm-clerical"]=1
+numerical[filteredCensus$occupation=="Armed-Forces"]=2
+numerical[filteredCensus$occupation=="Craft-repair"]=3
+numerical[filteredCensus$occupation=="Exec-managerial"]=4
+numerical[filteredCensus$occupation=="Farming-fishing"]=5
+numerical[filteredCensus$occupation=="Handlers-cleaners"]=6
+numerical[filteredCensus$occupation=="Machine-op-inspct"]=7
+numerical[filteredCensus$occupation=="Other-service"]=8
+numerical[filteredCensus$occupation=="Priv-house-serv"]=9
+numerical[filteredCensus$occupation=="Prof-specialty"]=10
+numerical[filteredCensus$occupation=="Protective-serv"]=11
+numerical[filteredCensus$occupation=="Sales"]=12
+numerical[filteredCensus$occupation=="Tech-support"]=13
+numerical[filteredCensus$occupation=="Transport-moving"]=14
+```
+
+```{r}
+filteredCensus[,16]=numerical
+ldataC1=filteredCensus[,c(1,11,12,13,15,16)]
+```
+
+```{r}
+t2=sort(sample((1:30718),30718/2))
+trainingC1=ldataC1[t2,]
+testingC1=ldataC1[-t2,]
+Direction2=testingC1$income
+```
+
+```{r}
+glm.fitC1=glm(income~age+capital.gain+capital.loss+V16+hours.per.week,data=trainingC1,family=binomial)
+```
+
+```{r}
+glm.probsC1=predict(glm.fitC1,testingC1,type="response")
+```
+
+```{r}
+glm.predC1=rep("<=50K", 30718/2)
+glm.predC1[glm.probsC1>0.5]=">=50K"
+table(glm.predC1,Direction2)
+```
+
+
+remove capital gain and loss
+
+```{r}
+filtered2=filteredCensus%>%filter(workclass!="?")
+filtered2[,2]=as.integer(filtered2$workclass)
+#filtered2[,6]=as.integer(filtered2$marital.status)
+numerical=rep(0,nrow(filtered2))
+numerical[filtered2$marital.status=="Widowed"]=1
+numerical[filtered2$marital.status=="Divorced"]=1
+numerical[filtered2$marital.status=="Separated"]=1
+numerical[filtered2$marital.status=="Never-married"]=2
+numerical[filtered2$marital.status=="Married-civ-spouse"]=3
+numerical[filtered2$marital.status=="Married-spouse-absent"]=3
+numerical[filtered2$marital.status=="Married-AF-spouse"]=3
+filtered2[,7]=as.integer(filtered2$occupation)
+#filtered2[,10]=as.integer(filtered2$sex)
+dataset3=filtered2[,c(1,2,5,6,9,10,13,15)]
+dataset3=dataset3[,c(1,2,3,4,6,7,8)]
+dataset3[,8]=numerical
+
+
+```
+
+
+```{r}
+logistic=function(M,mod,threshold){
+  n=nrow(M)
+  if(n%%2==0){
+    t=sort(sample((1:n),n/2))
+  }else{ t=sort(sample((1:n),(n+1)/2))}
+  training=M[t,]
+  testing=M[-t,]
+  
+  Direction=testing$income
+  glm.fit=glm(mod,data=training,family=binomial)
+  glm.probs=predict(glm.fit,testing,type="response")
+
+  if(n%%2==0){
+    glm.pred=rep("<=50K", n/2)
+  }else{ glm.pred=rep("<=50K", (n-1)/2)}
+  
+  #glm.pred=rep("<=50K",length(testing))
+  
+  glm.pred[glm.probs>threshold]=">=50K"
+  
+  confusion=table(glm.pred,Direction)
+  specificity=confusion[1,1]/(confusion[1,1]+confusion[2,1])
+  sensitivity=confusion[2,2]/(confusion[2,2]+confusion[1,2])
+  return(list(confusion=confusion,sensitivity=sensitivity,specificity=specificity,glm.fit=glm.fit))
+}
+```
+
+
+```{r}
+logisticRate=function(M,mod,threshold){
+  n=nrow(M)
+  
+  error=0
+  sensitivity=0
+  specificity=0
+  
+  for (i in (1:10)){
+    
+  t=sort(sample((1:n),round(n*0.9)))
+  training=M[t,]
+  testing=M[-t,]
+  
+  Direction=testing$income
+  glm.fit=glm(mod,data=training,family=binomial)
+  glm.probs=predict(glm.fit,testing,type="response")
+
+    glm.pred=rep("<=50K",n-round(n*0.9))
+  
+  glm.pred[glm.probs>threshold]=">=50K"
+  
+  confusion=table(glm.pred,Direction)
+  error=error+(confusion[1,1]+confusion[2,2])/(confusion[1,1]+confusion[1,2]+confusion[2,1]+confusion[2,2])
+  specificity=specificity+confusion[1,1]/(confusion[1,1]+confusion[2,1])
+  sensitivity=sensitivity+confusion[2,2]/(confusion[2,2]+confusion[1,2])
+  }
+  return(list(sensitivity=sensitivity/10,specificity=specificity/10,error=error/10))
+}
+
+```
+
+
+```{r}
+logistic(census,income~capital.gain+capital.loss,0.5)
+ M2=glm(income~capital.gain,data=census,family=binomial) ##age and hours
+# M=lll$glm.fit
+gmodel(M2, income~capital.gain)
+```
+
+
+
+
+```{r}
+logistic(dataset3,income~age+workclass+education.num+marital.status+sex,0.2)
+#glm(income~age+workclass+education.num+marital.status+sex,data=dataset3,family=binomial)
+#logisticRate(dataset3,income~workclass+sex+V8+education.num,0.5) ##age and hours
+```
+
+```{r}
+ M=glm(income~workclass+sex+V8+education.num,data=dataset3,family=binomial) ##age and hours
+# M=lll$glm.fit
+gmodel(M, income~ education.num+sex)
+```
+
+```{r}
+
+gmodel(glm(income~capital.gain,data=census,family=binomial),income~capital.gain)
+```
+
+
+
+```{r}
+t3=sort(sample((1:30718),30718/2))
+trainingC2=dataset3[t3,]
+testingC2=dataset3[-t3,]
+Direction3=testingC2$income
+```
+
+
+```{r}
+glm.fitC2=glm(income~age+workclass+education.num+marital.status+sex+hours.per.week,data=trainingC2,family=binomial)
+```
+
+
+```{r}
+glm.probsC2=predict(glm.fitC2,testingC2,type="response")
+```
+
+
+```{r}
+glm.predC2=rep("<=50K", 30718/2)
+glm.predC2[glm.probsC2>0.5]=">=50K"
+table(glm.predC2,Direction3)
+```
+
+
+
+
+
+
+
+
+```{r}
+llda=function(M,mod){
+  n=nrow(M)
+  if(n%%2==0){
+    t=sort(sample((1:n),n/2))
+  }else{ t=sort(sample((1:n),(n+1)/2))}
+  training=M[t,]
+  testing=M[-t,]
+  
+  Direction=testing$income
+  lda.fit=lda(mod,training)
+  lda.pred=predict(lda.fit,testing)
+
+  lda.class=lda.pred$class
+  
+  confusion=table(lda.class,Direction)
+  sensitivity=confusion[1,1]/(confusion[1,1]+confusion[2,1])
+  specificity=confusion[2,2]/(confusion[2,2]+confusion[1,2])
+  return(list(confusion=confusion,sensitivity=sensitivity,specificity=specificity,lda.fit=lda.fit,lda.class=lda.class))
+}
+```
+
+
+```{r}
+lldaRate=function(M,mod){
+  n=nrow(M)
+  error=0
+  sensitivity=0
+  specificity=0
+  
+  for (i in (1:10)){
+    t=sort(sample((1:n),round(n*0.9)))
+  
+  training=M[t,]
+  testing=M[-t,]
+  
+  Direction=testing$income
+  lda.fit=lda(mod,training)
+  lda.pred=predict(lda.fit,testing)
+
+  lda.class=lda.pred$class
+  
+  confusion=table(lda.class,Direction)
+  specificity=specificity+confusion[1,1]/(confusion[1,1]+confusion[2,1])
+  sensitivity=sensitivity+confusion[2,2]/(confusion[2,2]+confusion[1,2])
+  error=error+(confusion[1,1]+confusion[2,2])/(confusion[1,1]+confusion[1,2]+confusion[2,1]+confusion[2,2])
+  }
+  
+  return(list(sensitivity=sensitivity/10,specificity=specificity/10,error=error/10))
+}
+```
+
+
+```{r}
+#llda(dataset3,income~workclass+sex+V8+education.num) 
+lldaRate(dataset3,income~workclass+sex+marital.status+education.num) 
+
+#lda(income~capital.gain+capital.loss,data=census)
+```
+
+
+
+```{r}
+qqda=function(M,mod){
+  n=nrow(M)
+  if(n%%2==0){
+    t=sort(sample((1:n),n/2))
+  }else{ t=sort(sample((1:n),(n+1)/2))}
+  training=M[t,]
+  testing=M[-t,]
+  
+  Direction=testing$income
+  lda.fit=qda(mod,training)
+  lda.pred=predict(lda.fit,testing)
+
+  lda.class=lda.pred$class
+  
+
+  confusion=table(lda.class,Direction)
+  sensitivity=confusion[1,1]/(confusion[1,1]+confusion[2,1])
+  specificity=confusion[2,2]/(confusion[2,2]+confusion[1,2])
+  
+  return(list(confusion=confusion,sensitivity=sensitivity,specificity=specificity,lda.fit=lda.fit,me=mean(lda.class==Direction)))
+  
+}
+
+```
+
+```{r}
+qqdaRate=function(M,mod){
+  n=nrow(M)
+  error=0
+  sensitivity=0
+  specificity=0
+  
+  for (i in (1:10)){
+    t=sort(sample((1:n),round(n*0.9)))
+  training=M[t,]
+  testing=M[-t,]
+  
+  Direction=testing$income
+  lda.fit=qda(mod,training)
+  lda.pred=predict(lda.fit,testing)
+
+  lda.class=lda.pred$class
+  
+  confusion=table(lda.class,Direction)
+  specificity=specificity+confusion[1,1]/(confusion[1,1]+confusion[2,1])
+  sensitivity=sensitivity+confusion[2,2]/(confusion[2,2]+confusion[1,2])
+  error=error+(confusion[1,1]+confusion[2,2])/(confusion[1,1]+confusion[1,2]+confusion[2,1]+confusion[2,2])
+  }
+  
+  return(list(sensitivity=sensitivity/10,specificity=specificity/10,error=error/10))
+}
+```
+
+```{r}
+qqda(dataset3,income~workclass+sex+marital.status+education.num) 
+qqdaRate(dataset3,income~workclass+sex+V8+education.num) 
+```
+```{r}
+logisticRate(dataset3,income~workclass+sex+marital.status+education.num,0.5) ##age and hours
+qqdaRate(dataset3,income~workclass+sex+marital.status+education.num) 
+lldaRate(dataset3,income~workclass+sex+marital.status+education.num) 
+```
+
