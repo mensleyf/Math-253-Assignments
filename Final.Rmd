@@ -28,6 +28,11 @@ library(dplyr)
 library(randomForest)
 library(rpart.plot)
 library(ggplot2)
+library(statisticalModeling)
+library(lda)
+library(mosaic)
+library(mosaicData)
+library(MASS)
 
 ```
 
@@ -53,6 +58,8 @@ importance(mod_Everything, type=1)
 
 
 ## Part 2: Logistic Regression
+
+**Submitting this as separate .Rmd file**
 
 ## Part 3: Recusive Partitioning
 
